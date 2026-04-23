@@ -318,6 +318,6 @@ src/
 
 <br/>
 
-[![Live Demo](https://img.shields.io/badge/🔴_View_Live-Visit_Now-blue?style=for-the-badge)](https://om-liatai-digi-deck.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/🔴_View_Live-Visit_Now-blue?style=for-the-badge)](https://american-dream-mall-om.vercel.app/)
 
 </div>
