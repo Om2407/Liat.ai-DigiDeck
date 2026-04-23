@@ -51,73 +51,85 @@ https://om-liatai-digi-deck.vercel.app/
 ## 🖥️ Deck Screenshots — 16 Slides
 
 ### 01 · Hero — Cinematic Intro
-![01 Hero](./screenshots/01-hero.png)
+![01 Hero](<img width="1920" height="868" alt="image" src="https://github.com/user-attachments/assets/3787c6c5-6e89-4fbf-9009-940c8c4b7d22" />
+)
 > *Full-screen video background at 2× speed. Audience switcher transforms headline, stats, and CTAs in real-time for Tenant / Sponsor / Event Producer.*
 
 ---
 
 ### 02 · The Scale — Visitor Demographics
-![02 Scale](./screenshots/02-scale.png)
+![02 Scale](<img width="1893" height="859" alt="image" src="https://github.com/user-attachments/assets/96ca9105-3a01-4c2b-80e0-0c07f6c2263c" />
+)
 > *Data-driven overview: 40M+ visitors, 3M sq ft, $180 avg spend, 4hr+ dwell time. Designed to establish commercial credibility immediately.*
 
 ---
 
 ### 03 · Brands — Luxury Portfolio
-![03 Brands](./screenshots/03-brands.png)
+![03 Brands](<img width="1879" height="864" alt="image" src="https://github.com/user-attachments/assets/96b874e9-664b-46f8-8a34-32efbaa3a706" />
+)
 > *450+ brand roster. Hermès, Gucci, Louis Vuitton, Fendi — social proof for prospective tenants evaluating the co-tenancy environment.*
 
 ---
 
 ### 04 · Parks — Nickelodeon Universe + Big Snow
-![04 Parks](./screenshots/04-parks.png)
+![04 Parks](<img width="1901" height="860" alt="image" src="https://github.com/user-attachments/assets/9db9da99-6199-4325-887b-375f5a30252b" />
+)
 > *North America's largest indoor theme park. Big Snow — the only indoor ski slope in the Western Hemisphere. These are the traffic drivers.*
 
 ---
 
 ### 05 · Water Park — DreamWorks Water Park
-![05 Waterpark](./screenshots/05-waterpark.png)
+![05 Waterpark](<img width="1896" height="861" alt="image" src="https://github.com/user-attachments/assets/c434f896-c98d-4474-bab9-6893be57eac1" />
+)
 > *America's largest indoor waterpark. 40+ attractions. Year-round operation. The ultimate family destination driver that no competitor can match.*
 
 ---
 
 ### 06 · Mall Tour — 3D Cinematic Walkthrough
-![06 Mall Tour](./screenshots/06-malltour.png)
+![06 Mall Tour](<img width="1889" height="863" alt="Screenshot 2026-04-23 200359" src="https://github.com/user-attachments/assets/f39b9e39-9633-401f-8900-6bfbfb06dfc6" />
+)
 > *Immersive 3D property walkthrough built with Three.js + React Three Fiber. Lets prospects "walk the property" without visiting.*
 
 ---
 
 ### 07 · Retail — The Avenue
-![07 Retail](./screenshots/07-retail.png)
+![07 Retail](<img width="1891" height="855" alt="Screenshot 2026-04-23 200418" src="https://github.com/user-attachments/assets/80092dfa-4637-4326-b3cd-e3555f44322a" />
+)
 > *Curated luxury brand grid. Zone breakdown: The Avenue (flagship), The Plaza (mid-tier), The Market (F&B), The Lab (pop-up/activation).*
 
 ---
 
 ### 08 · ROI Calculator — Interactive Revenue Model
-![08 ROI](./screenshots/08-roi.png)
+![08 ROI](<img width="1885" height="853" alt="Screenshot 2026-04-23 200443" src="https://github.com/user-attachments/assets/8feb512b-7bc2-40cf-b1d3-f7a3e387fb8c" />
+)
 > *Live interactive calculator. Tenant inputs store size + dwell time → sees projected annual revenue, foot traffic, and ROI vs standalone location.*
 
 ---
 
 ### 09 · Leasing Paths — Segmented by Category
-![09 Leasing](./screenshots/09-leasing.png)
+![09 Leasing](<img width="1888" height="859" alt="Screenshot 2026-04-23 200457" src="https://github.com/user-attachments/assets/95067417-91f9-4dca-95e3-01aec0581700" />
+)
 > *4 distinct leasing tracks — Luxury Flagship / Mid-Tier Retail / F&B Restaurant / Pop-up Activation — each with tailored pitch, pricing, and perks.*
 
 ---
 
 ### 10 · Tech Hub — Innovation Corridor
-![10 Tech](./screenshots/10-techhub.png)
+![10 Tech](<img width="1920" height="862" alt="image" src="https://github.com/user-attachments/assets/23ab4e31-61b9-4bc0-a20c-001fd4ef3802" />
+)
 > *Entertainment-tech corridor: AR/VR activations, IMAX, SEA LIFE Aquarium. Positioned for tech-forward brands and experiential retail.*
 
 ---
 
 ### 11 · Brand Activations — Case Studies
-![11 Activations](./screenshots/11-activations.png)
+![11 Activations](<img width="1920" height="862" alt="Screenshot (217)" src="https://github.com/user-attachments/assets/bccccfc7-c7c2-42af-8076-0c54250665f5" />
+)
 > *Real activation case studies: Samsung, Nike, BTS, WWE. Proof that the platform delivers reach no standalone venue can replicate.*
 
 ---
 
 ### 12 · Events — Arena + Expo Center
-![12 Events](./screenshots/12-events.png)
+![12 Events](<img width="1895" height="848" alt="Screenshot 2026-04-23 200538" src="https://github.com/user-attachments/assets/222e91c0-45e0-49f8-8258-a9f44654cca2" />
+)
 > *5,000-seat arena + 300,000 sq ft Exposition Center. Booking flow, capacity specs, past event highlights, and direct CTA.*
 
 ---
@@ -129,19 +141,22 @@ https://om-liatai-digi-deck.vercel.app/
 ---
 
 ### 14 · Dining — F&B District
-![14 Dining](./screenshots/14-dining.png)
+![14 Dining](<img width="1887" height="860" alt="Screenshot 2026-04-23 200615" src="https://github.com/user-attachments/assets/5257fa6d-ec03-4004-be4c-0903fb337825" />
+)
 > *100+ restaurants across every category. Food as a lifestyle draw — not an afterthought. Positions F&B as a destination in itself.*
 
 ---
 
 ### 15 · Social Proof — Digital Reach
-![15 Social](./screenshots/15-social.png)
+![15 Social](<img width="1889" height="858" alt="Screenshot 2026-04-23 200631" src="https://github.com/user-attachments/assets/b64fd180-3e4c-4854-aabf-6b46d190bf19" />
+)
 > *8.4M followers. 120M monthly impressions. UGC volume. Platform-by-platform breakdown of the organic amplification a partner receives.*
 
 ---
 
 ### 16 · Partner With Us — Build My Pitch AI
-![16 Contact](./screenshots/16-contact.png)
+![16 Contact](<img width="1920" height="865" alt="image" src="https://github.com/user-attachments/assets/0ad59e88-341d-49ad-ab61-ee0cec23359f" />
+)
 > *Type brand name + select category → Gemini AI generates a personalized 3-paragraph pitch. "Send to Leasing Team" pre-fills a mailto with the output.*
 
 ---
