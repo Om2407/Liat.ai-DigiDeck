@@ -510,41 +510,26 @@ export const useDeck = () => useContext(DeckContext);
 export interface SlideInfo { id: string; label: string; emoji: string; color: string; bg?: 'dark' | 'light'; audience?: 'all' | 'tenant' | 'sponsor' | 'event'; }
 
 export const SLIDES: SlideInfo[] = [
-  { id: 'hero',          label: 'Welcome',      emoji: '🏙️', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
-  { id: 'overview',      label: 'The Scale',    emoji: '📊', color: '#0891b2', bg: 'light', audience: 'all' },
-  { id: 'brands',        label: 'Brands',       emoji: '🏷️', color: '#7c3aed', bg: 'light', audience: 'all' },
-  { id: 'parks',         label: 'Parks',        emoji: '🎡', color: '#ea580c', bg: 'light', audience: 'all' },
-  { id: 'waterpark',     label: 'Water Park',   emoji: '🌊', color: '#0077cc', bg: 'dark',  audience: 'all' },
-  { id: 'malltour',      label: 'Mall Tour',    emoji: '🎬', color: '#059669', bg: 'dark',  audience: 'all' },
-  { id: 'retail',        label: 'Retail',       emoji: '🛍️', color: '#b45309', bg: 'light', audience: 'tenant' },
-  { id: 'roi',           label: 'ROI Calc',     emoji: '💰', color: '#16a34a', bg: 'dark',  audience: 'tenant' },
-  { id: 'leasing',       label: 'Leasing',      emoji: '🏗️', color: '#8b5cf6', bg: 'dark',  audience: 'tenant' },
-  { id: 'entertainment', label: 'Tech Hub',     emoji: '📱', color: '#1428a0', bg: 'dark',  audience: 'tenant' },
-  { id: 'marvel',        label: 'Marvel',       emoji: '🦸', color: '#ED1D24', bg: 'dark',  audience: 'all' },
-  { id: 'events',        label: 'Events',       emoji: '🎤', color: '#7c3aed', bg: 'dark',  audience: 'event' },
-  { id: 'sponsorship',   label: 'Sponsorship',  emoji: '🎯', color: '#f59e0b', bg: 'dark',  audience: 'sponsor' },
-  { id: 'dining',        label: 'Dining',       emoji: '🍽️', color: '#dc2626', bg: 'light', audience: 'all' },
-  { id: 'social',        label: 'Social',       emoji: '📸', color: '#3b82f6', bg: 'dark',  audience: 'all' },
-  { id: 'contact',       label: 'Partner',      emoji: '🤝', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
+  { id: 'hero',        label: 'Welcome',     emoji: '🏙️', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
+  { id: 'scale',       label: 'The Scale',   emoji: '📊', color: '#0891b2', bg: 'dark',  audience: 'all' },
+  { id: 'retail',      label: 'Retail',      emoji: '🛍️', color: '#b45309', bg: 'dark',  audience: 'tenant' },
+  { id: 'entertain',   label: 'Entertainment',emoji: '🎡', color: '#ea580c', bg: 'dark', audience: 'all' },
+  { id: 'events',      label: 'Events',      emoji: '🎤', color: '#7c3aed', bg: 'dark',  audience: 'event' },
+  { id: 'sponsorship', label: 'Sponsorship', emoji: '🎯', color: '#f59e0b', bg: 'dark',  audience: 'sponsor' },
+  { id: 'dining',      label: 'Lifestyle',   emoji: '🍽️', color: '#dc2626', bg: 'dark',  audience: 'all' },
+  { id: 'contact',     label: 'Partner',     emoji: '🤝', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
 ];
 
 const GEMINI_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
 
 const SLIDE_CONTEXT: Record<string, string> = {
   hero: "Opening slide for American Dream Mall sales deck — 3M sq ft, 40M+ visitors/year, 8 miles from NYC. Give a 2-sentence opening pitch.",
-  overview: "American Dream's scale: 40M+ visitors, 3M sq ft, 450+ brands, 8 miles from NYC. Give 2 compelling sentences why this scale matters.",
-  brands: "450+ global brands from Hermès to Nike at American Dream. Give a 2-sentence pitch about the brand mix opportunity.",
-  parks: "Three world-record attractions: Nickelodeon Universe, DreamWorks Water Park, Big Snow indoor ski. Pitch in 2 sentences.",
-  waterpark: "DreamWorks Water Park — America's largest indoor water park, 1.5M sq ft, 40+ slides, open 365 days. Give a 2-sentence sponsor activation pitch.",
-  malltour: "Cinematic tour of American Dream Mall. Give 2 compelling sentences about the visitor experience.",
+  scale: "American Dream's scale: 40M+ visitors, 3M sq ft, 450+ brands, 8 miles from NYC. Give 2 compelling sentences why this scale matters.",
   retail: "Luxury retail wing: Hermès, Gucci, LV, Cartier, Dior and 450+ brands. Give a 2-sentence retail leasing pitch.",
-  roi: "ROI calculator showing projected footfall, revenue, and payback period for retail tenants. Give 2 sentences why the numbers make sense.",
-  entertainment: "Tech Hub with Apple, Samsung, Microsoft, Sony, Bose flagships. Give a 2-sentence pitch for tech retail.",
-  marvel: "Marvel Studios exclusive flagship — 5,000 sq ft of collectibles and meet-and-greets. Pitch in 2 sentences.",
+  entertain: "Three world-record attractions: Nickelodeon Universe, DreamWorks Water Park, Big Snow indoor ski. Pitch in 2 sentences.",
   events: "5,000-seat Performing Arts Center and 300,000 sq ft Exposition Center. Give a 2-sentence event producer pitch.",
   sponsorship: "Brand sponsorship tiers at American Dream: Presenting Partner ($2M+), Activation Partner ($500K-$2M), Event Sponsor ($100K-$500K). 40M visitors, $95K avg HHI. Give a 2-sentence pitch to brand sponsors.",
   dining: "100+ restaurants from Michelin-caliber to quick bites. Give a 2-sentence pitch about dining as a destination driver.",
-  social: "American Dream's social media reach: 8.4M combined followers, 40M annual visitors sharing content. Give a 2-sentence pitch about social proof and organic brand reach.",
   contact: "Final CTA slide for leasing, sponsorship, and event bookings. Give a compelling 2-sentence closing pitch.",
 };
 
@@ -591,19 +576,12 @@ function GeminiButton({ slideId, color, theme }: { slideId: string; color: strin
 
   const getFallback = (id: string) => ({
     hero: "American Dream isn't just a mall — it's the Western Hemisphere's most powerful commercial platform, delivering 40 million high-intent consumers annually to your brand.",
-    overview: "With 3 million square feet, 40M+ annual visitors, and proximity to 20 million NYC-metro consumers, American Dream offers unmatched scale and reach for any retail partner.",
-    brands: "Alongside 450+ global brands, your presence here signals premium positioning — placing you among the world's most recognized names in the most trafficked destination in the Northeast.",
-    parks: "Three world-record attractions create 4+ hour dwell times, turning every visitor into a high-intent, engaged shopper — something no standalone retail location can replicate.",
-    waterpark: "The DreamWorks Water Park draws families year-round, creating sponsorship and activation opportunities with a captive, joyful audience of 18,000+ daily visitors.",
-    malltour: "Every inch of American Dream is engineered for experience — from its iconic architecture to its curated tenant mix, creating an environment where brands thrive and visitors return.",
+    scale: "With 3 million square feet, 40M+ annual visitors, and proximity to 20 million NYC-metro consumers, American Dream offers unmatched scale and reach for any retail partner.",
     retail: "American Dream's luxury wing delivers white-glove retail conditions with the foot traffic of a theme park — a combination that consistently generates 2-3x revenue vs comparable locations.",
-    roi: "The numbers speak for themselves — American Dream tenants consistently outperform market benchmarks, backed by co-marketing, foot traffic guarantees, and a built-in 40M+ audience.",
-    entertainment: "The Tech Hub positions your brand alongside Apple and Samsung in the most tech-forward retail environment in the Northeast — drawing high-income, early-adopter consumers daily.",
-    marvel: "The Marvel flagship at American Dream is more than retail — it's a cultural destination that generates earned media, social content, and brand equity with every visit.",
+    entertain: "Three world-record attractions create 4+ hour dwell times, turning every visitor into a high-intent, engaged shopper — something no standalone retail location can replicate.",
     events: "From 5,000-seat concerts to 300,000 sq ft convention activations, American Dream's venues deliver the scale, logistics, and audience that event producers dream of.",
-    sponsorship: "With 40M annual visitors, $95K average household income, and 8.4M social followers, American Dream delivers brand exposure that no single media buy can replicate — at a cost-per-impression that outperforms every alternative.",
+    sponsorship: "With 40M annual visitors, $95K average household income, and 8.4M social followers, American Dream delivers brand exposure that no single media buy can replicate.",
     dining: "Dining at American Dream extends dwell time by an average of 90 minutes — turning a shopping trip into a full-day experience that benefits every tenant in the property.",
-    social: "40 million annual visitors organically generate millions of social impressions for brands inside American Dream — making your presence here the most cost-effective brand amplification strategy available.",
     contact: "The opportunity to be part of American Dream is rare, time-sensitive, and backed by proven ROI. The question isn't whether you can afford to be here — it's whether you can afford not to be.",
   }[id] || "American Dream delivers unmatched scale, premium demographics, and proven ROI for every partner, tenant, and event producer in the building.");
 
@@ -954,22 +932,28 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
             <ChevronLeft size={20} />
           </NavBtn>
 
-          {/* Dots pill */}
-          <div className="flex items-center gap-3 px-5 py-3 rounded-full backdrop-blur-md border shadow-lg"
+          {/* Slide Tab Bar (Desktop) & Dots (Mobile) */}
+          <div className="flex items-center px-2 py-2 rounded-full backdrop-blur-md border shadow-lg overflow-x-auto no-scrollbar max-w-[calc(100vw-120px)]"
             style={{ background: t.bg, borderColor: t.border }}>
-            <span className="text-xs font-black tabular-nums" style={{ color: t.text, opacity: 0.5 }}>
-              {String(current + 1).padStart(2, '0')}
-            </span>
-            <div className="flex gap-1">
-              {SLIDES.map((s, i) => (
-                <button key={i} onClick={() => go(i)} title={s.label}
-                  className="transition-all duration-300 rounded-full hover:opacity-100"
-                  style={{ width: current === i ? 18 : 6, height: 6, background: current === i ? s.color : (theme === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)') }} />
-              ))}
+            
+            {/* Responsive Tabs (Shows dots only on very small screens, or tabs everywhere) */}
+            <div className="flex items-center gap-1 min-w-max">
+              {SLIDES.map((s, i) => {
+                const isActive = current === i;
+                return (
+                  <button key={i} onClick={() => go(i)} title={s.label}
+                    className="flex flex-col items-center justify-center min-w-[80px] h-[48px] px-2 rounded-full transition-all duration-300 flex-shrink-0"
+                    style={{
+                      background: isActive ? s.color : 'transparent',
+                      color: isActive ? '#fff' : (theme === 'light' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)')
+                    }}
+                  >
+                    <span className="text-sm mb-0.5" style={{ filter: isActive ? 'none' : 'grayscale(100%) opacity(70%)' }}>{s.emoji}</span>
+                    <span className="text-[9px] font-black uppercase tracking-wider leading-none" style={{ opacity: isActive ? 1 : 0.7 }}>{s.label}</span>
+                  </button>
+                );
+              })}
             </div>
-            <span className="text-xs font-black tabular-nums" style={{ color: t.text, opacity: 0.5 }}>
-              {String(total).padStart(2, '0')}
-            </span>
           </div>
 
           <NavBtn onClick={next} disabled={current === total - 1} theme={theme}>

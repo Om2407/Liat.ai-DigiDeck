@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 const TIERS = [
   {
@@ -45,83 +45,50 @@ const TIERS = [
   },
 ];
 
-const AUDIENCE_STATS = [
-  { label: 'Annual Visitors',    value: '40M+',  desc: 'High-intent consumers' },
-  { label: 'Avg Household Income', value: '$95K', desc: 'Above national average' },
-  { label: 'Age 18–45',          value: '62%',   desc: 'Prime spending demographic' },
-  { label: 'Social Reach',       value: '8.4M',  desc: 'Combined followers' },
-];
-
 export default function Sponsorship() {
   return (
-    <section id="sponsorship" className="min-h-screen py-24 bg-zinc-950 relative overflow-hidden">
-      <div className="absolute inset-0 z-0">
+    <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex flex-col justify-center relative">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 70% 30%, rgba(139,92,246,0.1) 0%, transparent 55%)' }} />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 20% 80%, rgba(245,158,11,0.07) 0%, transparent 50%)' }} />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-8 md:px-16 relative z-10 flex flex-col items-center">
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-10"
         >
-          <span className="text-amber-400 uppercase tracking-[0.4em] text-[10px] font-black block mb-4">
+          <span className="text-amber-500 uppercase tracking-[0.4em] text-[10px] font-black block mb-4">
             Brand Partnerships
           </span>
-          <h2 className="text-white text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-6">
-            Own the<br />
-            <span className="italic font-serif" style={{ color: '#f59e0b' }}>Audience.</span>
+          <h2 className="text-[clamp(2.5rem,4vw,4rem)] font-black tracking-tighter leading-[0.85] mb-6">
+            Own the <span className="italic font-serif text-amber-500">Audience.</span>
           </h2>
-          <p className="text-white/40 max-w-xl mx-auto text-base leading-relaxed">
-            40 million annual visitors. One destination. Position your brand at the intersection of luxury, entertainment, and culture.
+          
+          <p className="text-zinc-300 font-medium uppercase tracking-widest text-xs md:text-sm">
+            40M Visitors <span className="text-zinc-700 mx-3">·</span> $95K Avg HHI <span className="text-zinc-700 mx-3">·</span> 8.4M Social Followers
           </p>
         </motion.div>
 
-        {/* Audience stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
-        >
-          {AUDIENCE_STATS.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="p-5 rounded-2xl border border-white/8 text-center"
-              style={{ background: 'rgba(255,255,255,0.03)' }}
-            >
-              <p className="text-white text-3xl font-black tracking-tighter mb-1">{s.value}</p>
-              <p className="text-white/60 text-xs font-black uppercase tracking-wider mb-0.5">{s.label}</p>
-              <p className="text-white/30 text-[10px]">{s.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Tier cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-14">
+        {/* Tier cards - Horizontal layout */}
+        <div className="flex flex-col md:flex-row w-full max-w-6xl gap-6 mb-8">
           {TIERS.map((tier, i) => (
             <motion.div
               key={tier.name}
               initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12, duration: 0.5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.12 + 0.2, duration: 0.8 }}
               whileHover={{ y: -6 }}
-              className="relative p-7 rounded-3xl border transition-all duration-500 cursor-pointer group"
+              className="flex-1 relative p-6 lg:p-8 rounded-3xl border transition-all duration-500 cursor-pointer group flex flex-col"
               style={{
-                background: i === 1 ? `${tier.color}0d` : 'rgba(255,255,255,0.03)',
-                borderColor: i === 1 ? `${tier.color}44` : 'rgba(255,255,255,0.08)',
+                background: i === 1 ? `${tier.color}0d` : 'rgba(255,255,255,0.02)',
+                borderColor: i === 1 ? `${tier.color}44` : 'rgba(255,255,255,0.05)',
               }}
             >
-              {/* Tag */}
               <div className="absolute -top-3 left-6">
                 <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full"
                   style={{ background: tier.color, color: '#000' }}>
@@ -130,25 +97,25 @@ export default function Sponsorship() {
               </div>
 
               <div className="mb-6 pt-2">
-                <p className="text-white/40 text-[10px] uppercase tracking-widest font-black mb-1">{tier.name}</p>
-                <p className="text-white text-4xl font-black tracking-tighter" style={{ color: tier.color }}>{tier.price}</p>
-                <p className="text-white/30 text-xs mt-1">per year</p>
+                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1">{tier.name}</p>
+                <p className="text-3xl lg:text-4xl font-black tracking-tighter" style={{ color: tier.color }}>{tier.price}</p>
+                <p className="text-zinc-600 text-xs mt-1">per year</p>
               </div>
 
-              <div className="flex flex-col gap-2.5 mb-7">
+              <div className="flex flex-col gap-3 flex-1 mb-6">
                 {tier.perks.map((perk) => (
                   <div key={perk} className="flex items-start gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: tier.color }} />
-                    <span className="text-white/60 text-xs leading-relaxed group-hover:text-white/75 transition-colors">{perk}</span>
+                    <span className="text-zinc-400 text-xs lg:text-sm leading-tight group-hover:text-zinc-300 transition-colors">{perk}</span>
                   </div>
                 ))}
               </div>
 
               <button
-                className="w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300"
+                className="w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 mt-auto"
                 style={{
                   background: i === 1 ? tier.color : 'transparent',
-                  border: `1px solid ${i === 1 ? tier.color : 'rgba(255,255,255,0.15)'}`,
+                  border: `1px solid ${i === 1 ? tier.color : 'rgba(255,255,255,0.1)'}`,
                   color: i === 1 ? '#000' : '#fff',
                 }}
               >
@@ -161,13 +128,13 @@ export default function Sponsorship() {
         {/* Bottom note */}
         <motion.p
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center text-white/25 text-xs"
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="text-center text-zinc-600 text-[10px] uppercase tracking-widest"
         >
           Custom packages available. All partnerships include audience data reports and co-marketing support.
         </motion.p>
       </div>
-    </section>
+    </div>
   );
 }
