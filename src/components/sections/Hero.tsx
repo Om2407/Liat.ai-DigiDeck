@@ -4,6 +4,11 @@ import { useDeck, SLIDES } from '../DeckEngine';
 import { useAudience, AUDIENCE_CONFIG, type Audience } from '../../context/AudienceContext';
 import { LayoutGrid, X } from 'lucide-react';
 
+const BRANDS = [
+  'HERMÈS', 'GUCCI', 'LOUIS VUITTON', 'CARTIER', 'PRADA', 'SAINT LAURENT',
+  'BALENCIAGA', 'TIFFANY & CO.', 'ROLEX', 'DIOR', 'CHANEL', 'BOTTEGA VENETA',
+];
+
 const KB_IMAGES = [
   'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1920&q=85',
   'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&q=85',
@@ -82,43 +87,43 @@ const AUDIENCE_HERO: Record<Audience, {
 
 function useTextScramble(text: string, trigger: boolean) {
   const [displayText, setDisplayText] = useState('');
-  
+
   useEffect(() => {
     if (!trigger) {
       setDisplayText('');
       return;
     }
-    
+
     let iteration = 0;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%';
     let interval: ReturnType<typeof setInterval>;
-    
+
     interval = setInterval(() => {
-      setDisplayText(() => 
+      setDisplayText(() =>
         text.split('').map((char, idx) => {
           if (char === ' ') return ' ';
           if (idx < Math.floor(iteration)) return text[idx];
           return chars[Math.floor(Math.random() * chars.length)];
         }).join('')
       );
-      
+
       if (iteration >= text.length) {
         clearInterval(interval);
       }
-      
+
       // Each iteration is ~40ms depending on interval, incrementing by 1/2 gives nice speed
       iteration += 0.5;
     }, 20);
-    
+
     return () => clearInterval(interval);
   }, [text, trigger]);
-  
+
   return displayText || text;
 }
 
 function FilmGrain() {
   const [baseFreq, setBaseFreq] = useState('0.85');
-  
+
   useEffect(() => {
     let frameId: number;
     let count = 0;
@@ -133,15 +138,68 @@ function FilmGrain() {
     frameId = requestAnimationFrame(updateFreq);
     return () => cancelAnimationFrame(frameId);
   }, []);
-  
+
   return (
-    <div className="fixed inset-0 z-[5] pointer-events-none opacity-[0.035]">
-      <svg width="100%" height="100%">
-        <filter id="grain">
-          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain)" />
-      </svg>
+    <>
+      <div className="fixed inset-0 z-[5] pointer-events-none opacity-[0.04]">
+        <svg width="100%" height="100%">
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+      </div>
+      {/* Cinematic scanlines */}
+      <div className="fixed inset-0 z-[5] pointer-events-none opacity-30" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)',
+      }} />
+    </>
+  );
+}
+
+function FloatingOrbs() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
+      <motion.div
+        animate={{ x: [0, 120, -60, 0], y: [0, -80, 120, 0] }}
+        transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+        className="absolute top-[5%] left-[5%] w-[55vw] h-[55vw] max-w-[650px] max-h-[650px] rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(8,145,178,0.18) 0%, transparent 70%)', filter: 'blur(80px)' }}
+      />
+      <motion.div
+        animate={{ x: [0, -80, 60, 0], y: [0, 120, -80, 0] }}
+        transition={{ duration: 34, repeat: Infinity, ease: 'linear' }}
+        className="absolute bottom-[5%] right-[5%] w-[45vw] h-[45vw] max-w-[550px] max-h-[550px] rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.14) 0%, transparent 70%)', filter: 'blur(80px)' }}
+      />
+      <motion.div
+        animate={{ x: [0, 160, -100, 0], y: [0, -60, 160, 0] }}
+        transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+        className="absolute top-[35%] left-[35%] w-[30vw] h-[30vw] max-w-[380px] max-h-[380px] rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)', filter: 'blur(70px)' }}
+      />
+    </div>
+  );
+}
+
+function LuxuryMarquee() {
+  return (
+    <div className="relative w-full overflow-hidden py-3" style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)' }}>
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #080808, transparent)' }} />
+      <div className="absolute right-0 top-0 bottom-0 w-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #080808, transparent)' }} />
+      <motion.div
+        className="flex whitespace-nowrap"
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration: 35, ease: 'linear', repeat: Infinity }}
+      >
+        {[...BRANDS, ...BRANDS].map((brand, i) => (
+          <div key={i} className="flex items-center">
+            <span className="text-white/40 font-black tracking-[0.35em] uppercase text-[11px] px-6">{brand}</span>
+            <span className="text-cyan-500/30 text-[8px]">✦</span>
+          </div>
+        ))}
+      </motion.div>
     </div>
   );
 }
@@ -172,26 +230,26 @@ function CursorSpotlight() {
   );
 }
 
-function MagneticButton({ 
-  children, 
-  onClick, 
-  className, 
-  style 
-}: { 
-  children: React.ReactNode; 
-  onClick?: () => void; 
-  className?: string; 
-  style?: React.CSSProperties 
+function MagneticButton({
+  children,
+  onClick,
+  className,
+  style
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  style?: React.CSSProperties
 }) {
   const ref = useRef<HTMLButtonElement>(null);
-  
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  
+
   const springConfig = { stiffness: 150, damping: 15, mass: 0.1 };
   const springX = useSpring(x, springConfig);
   const springY = useSpring(y, springConfig);
-  
+
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
@@ -199,21 +257,21 @@ function MagneticButton({
     const centerY = rect.top + rect.height / 2;
     const distanceX = e.clientX - centerX;
     const distanceY = e.clientY - centerY;
-    
+
     // Move max ~12px
     const maxMove = 12;
     const moveX = (distanceX / (rect.width / 2)) * maxMove;
     const moveY = (distanceY / (rect.height / 2)) * maxMove;
-    
+
     x.set(moveX);
     y.set(moveY);
   };
-  
+
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
   };
-  
+
   return (
     <motion.button
       ref={ref}
@@ -231,7 +289,7 @@ function MagneticButton({
 function CountUpStat({ finalString, delay }: { finalString: string, delay: number }) {
   const [displayValue, setDisplayValue] = useState(0);
   const match = finalString.match(/^([^0-9]*)(\d+)(.*?)$/);
-  
+
   useEffect(() => {
     if (!match) return;
     const target = parseInt(match[2], 10);
@@ -245,7 +303,7 @@ function CountUpStat({ finalString, delay }: { finalString: string, delay: numbe
         animationFrameId = requestAnimationFrame(update);
         return;
       }
-      
+
       const progress = Math.min(elapsed / duration, 1);
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
       setDisplayValue(Math.floor(easeOutQuart * target));
@@ -313,8 +371,9 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-zinc-950">
-      
+
       <FilmGrain />
+      <FloatingOrbs />
       <CursorSpotlight />
 
       {/* INTRO OVERLAY */}
@@ -322,26 +381,50 @@ export default function Hero() {
         {introPlaying && (
           <motion.div
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-6 text-center"
+            exit={{ opacity: 0, scale: 1.04, filter: 'blur(12px)' }}
+            transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1] }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+            style={{ background: '#060606' }}
           >
+            {/* Horizontal sweep line */}
+            <motion.div
+              initial={{ scaleX: 0, opacity: 1 }}
+              animate={{ scaleX: 1, opacity: 0 }}
+              transition={{ delay: 0.3, duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+              className="absolute top-1/2 left-0 right-0 h-px origin-left"
+              style={{ background: 'linear-gradient(90deg, transparent, #0891b2, transparent)' }}
+            />
+            {/* Corner accents */}
+            {['top-8 left-8', 'top-8 right-8', 'bottom-8 left-8', 'bottom-8 right-8'].map((pos, i) => (
+              <motion.div key={i} className={`absolute ${pos} w-6 h-6`}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 + i * 0.05 }}
+                style={{
+                  borderTop: i < 2 ? '1px solid rgba(8,145,178,0.4)' : 'none',
+                  borderBottom: i >= 2 ? '1px solid rgba(8,145,178,0.4)' : 'none',
+                  borderLeft: i % 2 === 0 ? '1px solid rgba(8,145,178,0.4)' : 'none',
+                  borderRight: i % 2 === 1 ? '1px solid rgba(8,145,178,0.4)' : 'none',
+                }} />
+            ))}
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-white/60 font-thin uppercase tracking-widest text-xs md:text-sm mb-4"
+              initial={{ opacity: 0, letterSpacing: '0.8em' }}
+              animate={{ opacity: 1, letterSpacing: '0.5em' }}
+              transition={{ delay: 0.2, duration: 1.0 }}
+              className="text-white/40 font-thin uppercase text-[10px] mb-6"
             >
               THE WESTERN HEMISPHERE'S
             </motion.p>
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0, duration: 0.8 }}
-              className="text-white font-black uppercase text-xl md:text-3xl tracking-wide"
+              initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 0.9, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              className="text-white font-black uppercase text-2xl md:text-4xl tracking-widest"
             >
               MOST POWERFUL COMMERCIAL PLATFORM.
             </motion.p>
+            {/* Bottom progress bar */}
+            <motion.div className="absolute bottom-0 left-0 h-[2px] bg-cyan-500/60"
+              initial={{ width: '0%' }} animate={{ width: '100%' }}
+              transition={{ duration: 2.8, ease: 'linear' }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -379,12 +462,13 @@ export default function Hero() {
       {/* LOCATION TAG */}
       {!introPlaying && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="absolute top-24 left-12 lg:left-16 z-[20]"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+          className="absolute top-16 left-12 lg:left-16 z-[25] flex items-stretch gap-3 backdrop-blur-md bg-black/40 px-3 py-1 rounded-full border border-white/10"
         >
-          <p className="text-[11px] font-thin uppercase tracking-[0.4em] text-white/80" style={{ color: cfg.color }}>
+          <div className="w-[2px] rounded-full my-0.5" style={{ backgroundColor: cfg.color }} />
+          <p className="text-[11px] font-thin uppercase tracking-[0.4em] text-white/80 py-0.5" style={{ color: cfg.color }}>
             {copy.tag}
           </p>
         </motion.div>
@@ -392,8 +476,8 @@ export default function Hero() {
 
       {/* MAIN CONTENT */}
       {!introPlaying && (
-        <div className="absolute left-12 lg:left-16 top-1/2 -translate-y-1/2 z-[20] w-full max-w-7xl flex justify-between items-center pr-12 lg:pr-16">
-          
+        <div className="absolute left-12 lg:left-16 top-1/2 -translate-y-1/2 z-[20] w-full max-w-7xl flex justify-between items-center pr-12 lg:pr-16 pt-20">
+
           {/* LEFT TEXT */}
           <div className="flex-1 text-left">
             <h1 className="text-white font-black leading-[0.85] tracking-tighter mb-6 flex flex-col">
@@ -401,7 +485,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                style={{ fontSize: 'clamp(4rem, 10vw, 9rem)' }}
+                style={{ fontSize: 'clamp(2.8rem, 6.5vw, 6.5rem)', lineHeight: '0.88', letterSpacing: '-0.03em' }}
               >
                 {scrambleTrigger ? headlineLine1 : copy.headline[0]}
               </motion.span>
@@ -409,7 +493,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                style={{ fontSize: 'clamp(4rem, 10vw, 9rem)', color: cfg.color }}
+                style={{ fontSize: 'clamp(2.8rem, 6.5vw, 6.5rem)', lineHeight: '0.88', letterSpacing: '-0.03em', color: cfg.color, textShadow: `0 0 80px ${cfg.color}50` }}
               >
                 {scrambleTrigger ? headlineLine2 : copy.headline[1]}
               </motion.span>
@@ -419,7 +503,7 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.0, duration: 0.8 }}
-              className="text-white/80 text-xl md:text-2xl font-thin mb-12 max-w-lg leading-relaxed"
+              className="text-white/70 text-lg md:text-xl font-thin mb-12 max-w-lg leading-relaxed"
             >
               {copy.sub}
             </motion.p>
@@ -454,11 +538,17 @@ export default function Hero() {
               transition={{ delay: 1.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ scale: 1.03, rotate: -1 }}
               className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 aspect-video group cursor-pointer"
+              style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}
             >
               <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
                 <source src={VIDEOS[1]} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              {/* Shine sweep on hover */}
+              <motion.div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+                style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)' }}
+              />
               <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
                 <motion.div className="w-2 h-2 rounded-full bg-red-500" animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
                 <span className="text-white text-[9px] font-black uppercase tracking-widest">Live Cam</span>
@@ -471,22 +561,41 @@ export default function Hero() {
               transition={{ delay: 1.7, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{ scale: 1.03, rotate: 1 }}
               className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 aspect-video group cursor-pointer"
+              style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}
             >
               <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
                 <source src={VIDEOS[0]} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              {/* Shine sweep on hover */}
+              <motion.div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+                style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)' }}
+              />
               <div className="absolute bottom-3 left-3">
-                 <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Featured Reel</span>
+                <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Featured Reel</span>
               </div>
             </motion.div>
           </div>
         </div>
       )}
 
+      {/* LUXURY MARQUEE */}
+      {!introPlaying && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.8, duration: 1.0 }}
+          className="absolute z-[25]"
+          style={{ bottom: '88px', left: 0, right: 0 }}
+        >
+          <LuxuryMarquee />
+        </motion.div>
+      )}
+
       {/* BOTTOM STATS BAR */}
       {!introPlaying && (
-        <div className="absolute bottom-0 left-0 w-full backdrop-blur-md border-t border-white/10 bg-black/20 z-[20] px-12 lg:px-16 py-6">
+        <div className="absolute bottom-0 left-0 w-full backdrop-blur-md border-t border-white/10 bg-black/40 z-[20] px-12 lg:px-16 py-5">
           <div className="max-w-7xl mx-auto flex flex-wrap gap-12 lg:gap-24">
             {copy.stats.map((s, i) => (
               <motion.div
@@ -494,12 +603,21 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2 + (i * 0.1), duration: 0.5 }}
-                className="flex flex-col"
+                className="flex flex-col group"
               >
-                <p className="font-black text-3xl md:text-4xl tracking-tighter" style={{ color: cfg.color === '#3b82f6' ? 'white' : cfg.color }}>
+                <p className="font-black text-3xl md:text-4xl tracking-tighter transition-all duration-300 group-hover:scale-105"
+                  style={{
+                    color: cfg.color === '#3b82f6' ? 'white' : cfg.color,
+                    textShadow: `0 0 30px ${cfg.color}60`,
+                  }}>
                   <CountUpStat finalString={s.num} delay={1.2 + (i * 0.1)} />
                 </p>
-                <p className="text-white/50 text-[10px] uppercase tracking-[0.2em] font-bold mt-1">{s.label}</p>
+                <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold mt-1">{s.label}</p>
+                {/* Glowing underline */}
+                <motion.div className="h-px mt-1 rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${cfg.color}, transparent)` }}
+                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                  transition={{ delay: 1.6 + i * 0.1, duration: 0.6 }} />
               </motion.div>
             ))}
           </div>
@@ -535,7 +653,7 @@ export default function Hero() {
             >
               <X size={24} />
             </button>
-            
+
             <div className="text-center mb-12">
               <h2 className="text-white font-black text-3xl tracking-widest uppercase mb-3">Where do you want to go?</h2>
               <p className="text-white/50 font-thin tracking-widest uppercase text-sm">Select a section to explore</p>
@@ -557,9 +675,9 @@ export default function Hero() {
                 >
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300" style={{ backgroundColor: slide.color }} />
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-current rounded-3xl transition-colors duration-300" style={{ color: slide.color }} />
-                  
+
                   <span className="absolute top-4 left-4 text-white/30 text-[10px] font-black">{String(i + 1).padStart(2, '0')}</span>
-                  
+
                   <span className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">{slide.emoji}</span>
                   <span className="text-white font-bold tracking-widest uppercase text-xs">{slide.label}</span>
                 </motion.button>
