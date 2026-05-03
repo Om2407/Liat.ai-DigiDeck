@@ -1,17 +1,23 @@
 <div align="center">
 
 # 🏙️ AMERICAN DREAM MALL
-## Interactive B2B Sales Deck
+## Interactive B2B Sales Deck · DigiDeck v9
 
 <br/>
 
 [![Live Demo](https://img.shields.io/badge/🔴_LIVE_DEMO-Visit_Now-blue?style=for-the-badge)](https://american-dream-mall-om.vercel.app/)
-[![GitHub](https://img.shields.io/badge/GitHub-Source_Code-black?style=for-the-badge&logo=github)](https://github.com/Om2407/Liat.ai-digi-deck)
-[![Lighthouse](https://img.shields.io/badge/Lighthouse-94%2F100-green?style=for-the-badge&logo=lighthouse)]()
+[![GitHub](https://img.shields.io/badge/GitHub-Source_Code-black?style=for-the-badge&logo=github)](https://github.com/Om2407/Liat.AI-DigiDeck)
+[![Performance](https://img.shields.io/badge/Lighthouse_Performance-96%2F100-brightgreen?style=for-the-badge)]()
+[![Best Practices](https://img.shields.io/badge/Best_Practices-100%2F100-brightgreen?style=for-the-badge)]()
+[![SEO](https://img.shields.io/badge/SEO-90%2F100-brightgreen?style=for-the-badge)]()
 
 <br/>
 
-> *"A self-contained web application that replaces fragmented sales tools — YouTube videos, static PDFs, and verbal narration — with a single cinematic, interactive experience that makes prospects say: I need to be here."*
+> *"Win with God as your witness."*
+
+<br/>
+
+> *"A self-contained web application that replaces fragmented sales tools — YouTube videos, static PDFs, and verbal narration — with a single cinematic, agentic experience that makes prospects say: I need to be here."*
 
 </div>
 
@@ -33,72 +39,140 @@ The world's largest shopping malls are no longer just places to shop. They are m
 
 ---
 
-## 🔴 Live URL & Performance
+## 🔴 Live Demo
 
-```text
+```
 https://american-dream-mall-om.vercel.app/
 ```
 
-| Metric | Desktop | Mobile |
-|--------|---------|--------|
-| ⚡ Performance | **94** 🟢 | **80** 🟠 |
-| ♿ Accessibility | **81** 🟢 | **81** 🟢 |
-| ✅ Best Practices | **96** 🟢 | **96** 🟢 |
-| 🔍 SEO | **90** 🟢 | **90** 🟢 |
+> Best experienced on desktop Chrome/Edge in fullscreen.
+> Use arrow keys or the bottom navigation to move between slides.
+
+| Metric | Desktop |
+|--------|---------|
+| ⚡ Performance | **96 / 100** 🟢 |
+| ♿ Accessibility | **86 / 100** 🟢 |
+| ✅ Best Practices | **100 / 100** 🟢 |
+| 🔍 SEO | **90 / 100** 🟢 |
 
 ---
 
-## 🖥️ Deck Sections — 8 Slides
+## 🎬 Director's Cut — Audience Selector
 
-### 01 · Welcome — Cinematic Intro
-> *Full-screen video background at 2× speed. Audience switcher transforms headline, stats, and CTAs in real-time for Tenant / Sponsor / Event Producer.*
+Before the deck loads, a cinematic **"Who's in the Room?"** screen asks the presenter to select their audience. The entire 9-slide deck instantly adapts — headlines, stats, CTAs, AI context, and copy — for whoever is in the room.
 
-### 02 · The Scale — Visitor Demographics
-> *Data-driven overview: 40M+ visitors, 3M sq ft, $180 avg spend, 4hr+ dwell time. Designed to establish commercial credibility immediately.*
+```
+🌐 All Visitors     →  Full overview experience
+🏪 Retail Tenant    →  Leasing & revenue focus  [MOST REQUESTED]
+🎯 Brand Sponsor    →  Activation & reach focus
+🎪 Event Producer   →  Venues & capacity focus
+```
 
-### 03 · Retail — The Avenue
-> *Curated luxury brand grid. Zone breakdown: The Avenue (flagship), The Plaza (mid-tier), The Market (F&B), The Lab (pop-up/activation).*
-
-### 04 · Entertainment — Global Attractions
-> *North America's largest indoor theme park. Big Snow — the only indoor ski slope in the Western Hemisphere. The ultimate destination drivers.*
-
-### 05 · Events — Arena + Expo Center
-> *5,000-seat arena + 300,000 sq ft Exposition Center. Booking flow, capacity specs, past event highlights, and direct CTA.*
-
-### 06 · Sponsorship — 3 Partnership Tiers
-> *Presenting, Associate, and Activation partner tiers. Audience data, impression guarantees, and activation examples per tier.*
-
-### 07 · Lifestyle — F&B District
-> *100+ restaurants across every category. Food as a lifestyle draw — not an afterthought. Positions F&B as a destination in itself.*
-
-### 08 · Partner — Build My Pitch AI
-> *Final CTA slide for leasing, sponsorship, and event bookings. Type brand name + select category → Gemini AI generates a personalized pitch.*
+Switch audience at any time during the presentation — all 9 slides update simultaneously.
 
 ---
 
-## 🎭 Audience Switcher
+## 🖥️ 9 Slides — Full Breakdown
 
-At the core of the deck is the global **Audience Switcher** which enables real-time adaptation of the presentation context based on who is viewing it:
+### 01 · Hero — Cinematic Welcome
+Fullscreen video background, Ken Burns parallax, text scramble animation, 3D Globe with particle field (Three.js), magnetic buttons, film grain overlay, count-up stats, and audience-aware headline system.
 
-1. **All Visitors (🌐):** A holistic overview highlighting all features equally.
-2. **Retail Tenant (🏪):** Customizes data and pitches to focus heavily on foot traffic, dwell times, co-tenancy, and leasing opportunities.
-3. **Brand Sponsor (🎯):** Emphasizes brand visibility, high household income demographics, massive social reach, and activation footprints.
-4. **Event Producer (🎤):** Highlights venue capabilities, logistics, capacities, and previous successful large-scale events.
+### 02 · The Scale — Data Platform
+Dark MapLibre GL interactive map centered on East Rutherford, NJ. Animated route from NYC. Live visitor counter. GeoJSON data layers. Key stats: 40M+ visitors · 3M sq ft · 8 miles from NYC · $180 avg spend.
 
-This contextual switch dynamically updates the hero content, button styling, highlighted statistics, and instructs the Gemini AI to frame its responses through the lens of the selected audience.
+### 03 · Retail Leasing — The Avenue
+Partner brand wall (Hermès, Gucci, Apple, 450+ brands). Zone breakdown: The Avenue (luxury flagship) · The Plaza (mid-tier) · The Market (F&B) · The Lab (pop-up/activation). Audience-aware leasing copy.
+
+### 04 · Entertainment — World Records
+3D rotating carousel wheel (rAF + CSS 3D transforms). 5 attraction cards: Nickelodeon Universe · DreamWorks Water Park · Big SNOW · Performing Arts Center · Marvel Experience. YouTube modal on click. Cursor trail. Ambient video background.
+
+### 05 · Events — The Stage
+Three.js stadium crowd simulation — 2,400 instanced sphere particles in real stadium bowl geometry. Stadium wave animation. Venue cards: 5,000-seat Performing Arts Center + 300K sq ft Exposition Center.
+
+### 06 · Sponsorship — Own the Room
+Three luxury partnership tier cards. Gold shimmer animation on Presenting Partner ($2M+). Vertical Three.js particle stream. Tiers: Presenting · Activation · Event Sponsor.
+
+### 07 · ROI Calculator — See Your Return
+Fully interactive financial calculator. Live sliders: Space Size · Zone · Monthly Budget · Brand Tier. Real-time projected metrics: Monthly Visitors · Estimated Revenue · ROI % · Payback Period. Animated 12-month bar chart.
+
+### 08 · Dining & Lifestyle — Stay Longer
+Auto-scrolling Unsplash food imagery (CSS infinite scroll, pauses on hover). Playfair Display editorial serif typography. Key stats: +90 min avg visit · $180 avg spend · 100+ dining concepts.
+
+### 09 · Partner With Us — Contact & AI
+Gemini AI pitch generator. PDF Proposal Generator (audience-aware, downloadable via jsPDF). Contact CTAs.
+
+---
+
+## 🤖 Agentic AI Copilot — The Star Feature
+
+This is not a generic chatbot. It's a **spatially-aware agentic interface** that understands the presentation context in real time.
+
+### 1. Gaze Tracking
+A global `useGazeContext` hook reads `data-ai-context` attributes from elements under the user's cursor across all slides:
+
+```tsx
+<div data-ai-context="ROI Calculator: Space=2500sqft, Zone=Luxury, Budget=$50000/mo, projected ROI=340%">
+```
+
+### 2. Proactive Contextual Greeting
+When the AI panel opens, it instantly greets based on exactly what's on screen:
+
+> *"I see you're running numbers on the $500K activation tier — want me to show you the projected ROI for that investment?"*
+
+### 3. JSON Tool Calling — Agentic Navigation
+Gemini responds in structured JSON with an optional `ui_action`:
+
+```json
+{
+  "message": "Let me show you the full sponsorship breakdown.",
+  "ui_action": { "type": "navigate", "slide_index": 5 }
+}
+```
+
+The UI parses this and **physically navigates the deck** in response to natural language.
+
+### 4. AI Pitch Generator
+Brand name + category → Gemini generates a personalized 3-paragraph sales pitch with "Send to Leasing Team" mailto CTA.
+
+### 5. PDF Proposal Generator
+Audience-aware PDF generated client-side via `jsPDF`. Dark themed, color-coded by audience. Downloadable from the Contact slide.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Decision |
-|-------|-----------|----------|
-| Framework | **React 19 + TypeScript** | Type-safe, component-driven architecture |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Framework | **React 19 + TypeScript** | Type-safe, component-driven |
 | Build | **Vite 6** | Fast HMR, manual chunk splitting |
 | Styling | **Tailwind CSS v4** | Utility-first, zero runtime overhead |
-| Animation | **Framer Motion 12** | Cinematic page transitions + micro-interactions |
-| AI | **Google Gemini 2.0 Flash** | 3 distinct live AI features |
+| Animation | **Framer Motion 12** (`motion/react`) | Cinematic transitions + micro-interactions |
+| 3D / WebGL | **Three.js r184 + R3F + Drei** | Stadium particles, particle streams |
+| Mapping | **MapLibre GL** | Interactive dark map, route animation |
+| AI | **Google Gemini 2.0 Flash** | Agentic copilot, pitch generator |
+| PDF | **jsPDF** | Client-side proposal generation |
 | Deployment | **Vercel** | CDN edge, auto-deploy on push |
+
+---
+
+## 🏗️ Architecture
+
+```
+src/
+├── components/
+│   ├── ui/                    # Atomic design — shared micro-interactions
+│   │   ├── FilmGrain.tsx      # SVG feTurbulence grain (IntersectionObserver optimized)
+│   │   ├── CountUp.tsx        # Unified animated counter
+│   │   ├── MagneticButton.tsx # Spring-based magnetic hover effect
+│   │   └── FluidCursor.tsx    # Global custom cursor (mixBlendMode: difference)
+│   ├── sections/              # Full-screen slide components (9 slides)
+│   ├── DeckEngine.tsx         # Slide navigation + AnimatePresence transitions
+│   └── AIConcierge.tsx        # Agentic AI copilot
+├── hooks/
+│   └── useGazeContext.ts      # DOM gaze tracking hook
+└── context/
+    └── AudienceContext.tsx    # Global audience switcher
+```
 
 ---
 
@@ -106,47 +180,54 @@ This contextual switch dynamically updates the hero content, button styling, hig
 
 ```bash
 # 1. Clone
-git clone https://github.com/Om2407/Liat.ai-digi-deck
-cd Liat.ai-digi-deck
+git clone https://github.com/Om2407/Liat.AI-DigiDeck
+cd Liat.AI-DigiDeck
 
 # 2. Install
 npm install
 
-# 3. Environment
-cp .env.example .env
-# Add your Gemini API key → https://aistudio.google.com
-```
-
-**.env**
-```env
+# 3. Environment — create .env file
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
+VITE_MAPTILER_API_KEY=your_maptiler_api_key_here
+
+# 4. Run
+npm run dev       # → http://localhost:3000
+npm run build     # Production build
 ```
 
-```bash
-# 4. Run
-npm run dev       # → http://localhost:5173
-npm run build     # Production build
-npm run preview   # Preview production build
-```
+> AI features require a Gemini API key from [aistudio.google.com](https://aistudio.google.com). All slides work without it — a fallback pitch is served if the key is missing.
 
 ---
 
-## 🤖 AI Integration — 3 Live Features
+## 📦 Changelog — v9 (May 2026)
 
-### 1. ✦ Build My Pitch *(Slide 08 — Partner)*
-User inputs **brand name + category** → Gemini generates a personalized 3-paragraph sales pitch explaining exactly why that brand belongs at American Dream.
-
-### 2. 💬 AI Concierge *(Floating Widget — always visible)*
-Always-on conversational assistant trained on American Dream's full property details — leasing, events, venues, sponsorship tiers, parking, hours.
-
-### 3. 📊 Ask AI About This *(Audience-Aware Context)*
-On every slide, prospects can click the "Ask AI About This" button. The system passes the specific slide's context AND the currently selected audience role to Gemini, generating a tailored 2-sentence pitch emphasizing exactly what matters most to that user type.
+- ✅ Director's Cut audience selector screen
+- ✅ Spatially-aware Agentic AI Copilot (gaze tracking + JSON tool calling)
+- ✅ ROI Calculator with live financial projections
+- ✅ PDF Proposal Generator (jsPDF, audience-aware)
+- ✅ Three.js stadium crowd — 2,400 instanced particles + wave animation
+- ✅ Dark MapLibre GL map (CartoDB dark matter tiles)
+- ✅ Global fluid cursor (mixBlendMode: difference)
+- ✅ Atomic component refactor (src/components/ui/)
+- ✅ React.lazy() code splitting — Lighthouse Performance 44 → 96
+- ✅ IntersectionObserver on all rAF loops — zero GPU waste on hidden slides
+- ✅ Mobile responsive layouts
 
 ---
 
 <div align="center">
 
-**Built with React 19 · Vite · Tailwind CSS · Framer Motion · Google Gemini**
+*"Win with God as your witness."*
+
+<br/>
+
+**Built by Om Gupta**
+
+📧 guptaom203@gmail.com &nbsp;·&nbsp; 📱 +91-9131939394 &nbsp;·&nbsp; 🔗 [GitHub @Om2407](https://github.com/Om2407)
+
+<br/>
+
+*Built as a take-home assignment for LIAT.AI — Senior Frontend Engineer & AI-Powered Interactive Design role.*
 
 <br/>
 
