@@ -96,7 +96,7 @@ export default function RetailLeasing({ currentAudience = 'all' }: { currentAudi
   return (
     <div ref={sectionRef} className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex items-center relative">
       {/* VIDEO BACKGROUND */}
-      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-[0.35] pointer-events-none">
+      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-[1] pointer-events-none">
         <source src="/videos/video-retail.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-[rgba(8,8,8,0.88)] z-0 pointer-events-none" />
