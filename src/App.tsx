@@ -67,11 +67,11 @@ export default function App() {
     <>
       <FluidCursor />
       {showDirectorsCut ? (
-        <DirectorsCut 
+        <DirectorsCut
           onSelect={(audience) => {
             setSelectedAudience(audience);
             setShowDirectorsCut(false);
-          }} 
+          }}
         />
       ) : (
         <AudienceProvider initialAudience={selectedAudience}>

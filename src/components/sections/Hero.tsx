@@ -42,7 +42,7 @@ const AUDIENCE_HERO: Record<Audience, {
       { num: '8mi', label: 'From NYC' },
     ],
     cta1: { label: 'Explore the Opportunity', section: 1 },
-    cta2: { label: 'Book a Venue', section: 10 },
+    cta2: { label: 'Book a Venue', section: 4 },
   },
   tenant: {
     tag: '🏪 Retail Leasing Opportunity',
@@ -54,8 +54,8 @@ const AUDIENCE_HERO: Record<Audience, {
       { num: '4hrs+', label: 'Avg Dwell Time' },
       { num: '2-3×', label: 'Revenue vs Comparable' },
     ],
-    cta1: { label: 'View Leasing Opportunities', section: 6 },
-    cta2: { label: 'Calculate Your ROI', section: 7 },
+    cta1: { label: 'View Leasing Opportunities', section: 2 },
+    cta2: { label: 'Calculate Your ROI', section: 6 },
   },
   sponsor: {
     tag: '🎯 Brand Sponsorship Platform',
@@ -67,7 +67,7 @@ const AUDIENCE_HERO: Record<Audience, {
       { num: '8.4M', label: 'Social Reach' },
       { num: '200+', label: 'Events / Year' },
     ],
-    cta1: { label: 'View Sponsorship Tiers', section: 11 },
+    cta1: { label: 'View Sponsorship Tiers', section: 5 },
     cta2: { label: 'Audience Insights', section: 1 },
   },
   event: {
@@ -80,8 +80,8 @@ const AUDIENCE_HERO: Record<Audience, {
       { num: '200+', label: 'Events / Year' },
       { num: '30K', label: 'Parking Spots' },
     ],
-    cta1: { label: 'Book the Venue', section: 10 },
-    cta2: { label: 'View Event Packages', section: 10 },
+    cta1: { label: 'Book the Venue', section: 4 },
+    cta2: { label: 'View Event Packages', section: 4 },
   },
 };
 
