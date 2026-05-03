@@ -65,7 +65,9 @@ Tone: confident, premium, specific. Exactly 3 paragraphs. No bullet points. No h
   }
 }
 
-export default function Contact() {
+export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
+
+export default function Contact({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
   const [brandName, setBrandName] = useState('');
   const [category, setCategory] = useState('');
   const [pitch, setPitch] = useState('');

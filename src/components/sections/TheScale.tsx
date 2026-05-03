@@ -266,29 +266,26 @@ function MapSection({ inView }: { inView: boolean }) {
         });
       } catch (_) { /* fallback: no 3D buildings if source unavailable */ }
 
-      // Marker style injection
-      if (!document.getElementById('map-pulse-style')) {
-        const s = document.createElement('style'); s.id = 'map-pulse-style';
-        s.innerHTML = `@keyframes mallPulse{0%{box-shadow:0 0 0 0 rgba(8,145,178,.9),0 0 25px #0891b2}70%{box-shadow:0 0 0 18px rgba(8,145,178,0),0 0 25px #0891b2}100%{box-shadow:0 0 0 0 rgba(8,145,178,0),0 0 25px #0891b2}}.mall-dot{animation:mallPulse 1.8s infinite;transition:transform .2s}.mall-dot:hover{transform:scale(1.35)!important}`;
-        document.head.appendChild(s);
-      }
-
-      // Mall marker — draggable:false + block ALL pointer events from bubbling to map
-      const el = document.createElement('div');
-      el.className = 'mall-dot';
-      el.style.cssText = 'width:22px;height:22px;background:#0891b2;border-radius:50%;border:3px solid white;cursor:pointer;position:relative;z-index:10;user-select:none;-webkit-user-select:none;';
-      
-      const stopAll = (e: Event) => {
-        e.stopPropagation();
-        if (e.cancelable && e.type !== 'touchstart' && e.type !== 'touchmove') {
-          e.preventDefault();
-        }
-      };
-      ['mousedown', 'mousemove', 'pointerdown', 'pointermove', 'touchstart', 'touchmove', 'dragstart'].forEach(eventType => {
-        el.addEventListener(eventType, stopAll, { capture: true, passive: false });
+      // Mall marker — native geojson point
+      map.addSource('mall-point', {
+        type: 'geojson',
+        data: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [-74.0776, 40.8133] } }
       });
-      el.addEventListener('click', (e) => { e.stopPropagation(); setShowPopup(true); }, { capture: true });
-      new maplibregl.Marker({ element: el, draggable: false }).setLngLat([-74.0776, 40.8133]).addTo(map);
+      map.addLayer({
+        id: 'mall-dot',
+        type: 'circle',
+        source: 'mall-point',
+        paint: {
+          'circle-radius': 11,
+          'circle-color': '#0891b2',
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+      
+      map.on('click', 'mall-dot', () => { setShowPopup(true); });
+      map.on('mouseenter', 'mall-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'mall-dot', () => { map.getCanvas().style.cursor = ''; });
 
       // NYC marker
       const nycEl = document.createElement('div');

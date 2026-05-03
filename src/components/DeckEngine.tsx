@@ -498,39 +498,48 @@
 // }
 import { useState, useEffect, useCallback, createContext, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, LayoutGrid, X, Play, Pause, Sparkles, Loader } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, X, Play, Pause } from 'lucide-react';
 import { useAudience, AUDIENCE_CONFIG, type Audience } from '../context/AudienceContext';
 
 /* ─── Deck Context ─── */
 interface DeckCtx { current: number; total: number; go: (n: number) => void; next: () => void; prev: () => void; }
-const DeckContext = createContext<DeckCtx>({ current: 0, total: 0, go: () => {}, next: () => {}, prev: () => {} });
+const DeckContext = createContext<DeckCtx>({ current: 0, total: 0, go: () => { }, next: () => { }, prev: () => { } });
 export const useDeck = () => useContext(DeckContext);
 
 /* ─── Slide Metadata ─── */
 export interface SlideInfo { id: string; label: string; emoji: string; color: string; bg?: 'dark' | 'light'; audience?: 'all' | 'tenant' | 'sponsor' | 'event'; }
 
 export const SLIDES: SlideInfo[] = [
-  { id: 'hero',        label: 'Welcome',     emoji: '🏙️', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
-  { id: 'scale',       label: 'The Scale',   emoji: '📊', color: '#0891b2', bg: 'dark',  audience: 'all' },
-  { id: 'retail',      label: 'Retail',      emoji: '🛍️', color: '#b45309', bg: 'dark',  audience: 'tenant' },
-  { id: 'entertain',   label: 'Entertainment',emoji: '🎡', color: '#ea580c', bg: 'dark', audience: 'all' },
-  { id: 'events',      label: 'Events',      emoji: '🎤', color: '#7c3aed', bg: 'dark',  audience: 'event' },
-  { id: 'sponsorship', label: 'Sponsorship', emoji: '🎯', color: '#f59e0b', bg: 'dark',  audience: 'sponsor' },
-  { id: 'dining',      label: 'Lifestyle',   emoji: '🍽️', color: '#dc2626', bg: 'dark',  audience: 'all' },
-  { id: 'contact',     label: 'Partner',     emoji: '🤝', color: '#1d4ed8', bg: 'dark',  audience: 'all' },
+  { id: 'hero', label: 'Welcome', emoji: '🏙️', color: '#1d4ed8', bg: 'dark', audience: 'all' },
+  { id: 'scale', label: 'The Scale', emoji: '📊', color: '#0891b2', bg: 'dark', audience: 'all' },
+  { id: 'retail', label: 'Retail', emoji: '🛍️', color: '#b45309', bg: 'dark', audience: 'tenant' },
+  { id: 'entertain', label: 'Entertainment', emoji: '🎡', color: '#ea580c', bg: 'dark', audience: 'all' },
+  { id: 'events', label: 'Events', emoji: '🎤', color: '#7c3aed', bg: 'dark', audience: 'event' },
+  { id: 'sponsorship', label: 'Sponsorship', emoji: '🎯', color: '#f59e0b', bg: 'dark', audience: 'sponsor' },
+  { id: 'dining', label: 'Lifestyle', emoji: '🍽️', color: '#dc2626', bg: 'dark', audience: 'all' },
+  { id: 'contact', label: 'Partner', emoji: '🤝', color: '#1d4ed8', bg: 'dark', audience: 'all' },
 ];
 
 const GEMINI_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
 
-const SLIDE_CONTEXT: Record<string, string> = {
-  hero: "Opening slide for American Dream Mall sales deck — 3M sq ft, 40M+ visitors/year, 8 miles from NYC. Give a 2-sentence opening pitch.",
-  scale: "American Dream's scale: 40M+ visitors, 3M sq ft, 450+ brands, 8 miles from NYC. Give 2 compelling sentences why this scale matters.",
-  retail: "Luxury retail wing: Hermès, Gucci, LV, Cartier, Dior and 450+ brands. Give a 2-sentence retail leasing pitch.",
-  entertain: "Three world-record attractions: Nickelodeon Universe, DreamWorks Water Park, Big Snow indoor ski. Pitch in 2 sentences.",
-  events: "5,000-seat Performing Arts Center and 300,000 sq ft Exposition Center. Give a 2-sentence event producer pitch.",
-  sponsorship: "Brand sponsorship tiers at American Dream: Presenting Partner ($2M+), Activation Partner ($500K-$2M), Event Sponsor ($100K-$500K). 40M visitors, $95K avg HHI. Give a 2-sentence pitch to brand sponsors.",
-  dining: "100+ restaurants from Michelin-caliber to quick bites. Give a 2-sentence pitch about dining as a destination driver.",
-  contact: "Final CTA slide for leasing, sponsorship, and event bookings. Give a compelling 2-sentence closing pitch.",
+const getSlideContext = (slideId: string, audience: string): string => {
+  const base: Record<string, string> = {
+    hero: "Opening slide for American Dream Mall sales deck — 3M sq ft, 40M+ visitors/year, 8 miles from NYC. Give a 2-sentence opening pitch.",
+    scale: "American Dream's scale: 40M+ visitors, 3M sq ft, 450+ brands, 8 miles from NYC. Give 2 compelling sentences why this scale matters.",
+    retail: "Luxury retail wing: Hermès, Gucci, LV, Cartier, Dior and 450+ brands. Give a 2-sentence retail leasing pitch.",
+    entertain: "Three world-record attractions: Nickelodeon Universe, DreamWorks Water Park, Big Snow indoor ski. Pitch in 2 sentences.",
+    events: "5,000-seat Performing Arts Center and 300,000 sq ft Exposition Center. Give a 2-sentence event producer pitch.",
+    sponsorship: "Brand sponsorship tiers at American Dream: Presenting Partner ($2M+), Activation Partner ($500K-$2M), Event Sponsor ($100K-$500K). 40M visitors, $95K avg HHI. Give a 2-sentence pitch to brand sponsors.",
+    dining: "100+ restaurants from Michelin-caliber to quick bites. Give a 2-sentence pitch about dining as a destination driver.",
+    contact: "Final CTA slide for leasing, sponsorship, and event bookings. Give a compelling 2-sentence closing pitch.",
+  };
+  let ctx = base[slideId] || 'American Dream Mall — pitch this section in 2 compelling sentences.';
+  if (['scale', 'retail', 'events', 'sponsorship'].includes(slideId)) {
+    if (audience === 'tenant') ctx += " ...focus on retail leasing opportunity";
+    if (audience === 'sponsor') ctx += " ...focus on brand visibility and ROI";
+    if (audience === 'event') ctx += " ...focus on venue capabilities and booking";
+  }
+  return ctx;
 };
 
 /* ─── Theme-aware button styles ─── */
@@ -547,84 +556,10 @@ const lightBtn = {
   hover: 'rgba(255,255,255,1)',
 };
 
-/* ─── Gemini AI Button ─── */
-function GeminiButton({ slideId, color, theme }: { slideId: string; color: string; theme: 'dark'|'light' }) {
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const ask = async () => {
-    if (loading) return;
-    setOpen(true); setLoading(true); setText('');
-    const context = SLIDE_CONTEXT[slideId] || 'American Dream Mall — pitch this section in 2 compelling sentences.';
-    try {
-      if (GEMINI_KEY) {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: context }] }], generationConfig: { maxOutputTokens: 120, temperature: 0.8 } }) }
-        );
-        const data = await res.json();
-        setText(data?.candidates?.[0]?.content?.parts?.[0]?.text || getFallback(slideId));
-      } else {
-        await new Promise(r => setTimeout(r, 700));
-        setText(getFallback(slideId));
-      }
-    } catch { setText(getFallback(slideId)); }
-    setLoading(false);
-  };
-
-  const getFallback = (id: string) => ({
-    hero: "American Dream isn't just a mall — it's the Western Hemisphere's most powerful commercial platform, delivering 40 million high-intent consumers annually to your brand.",
-    scale: "With 3 million square feet, 40M+ annual visitors, and proximity to 20 million NYC-metro consumers, American Dream offers unmatched scale and reach for any retail partner.",
-    retail: "American Dream's luxury wing delivers white-glove retail conditions with the foot traffic of a theme park — a combination that consistently generates 2-3x revenue vs comparable locations.",
-    entertain: "Three world-record attractions create 4+ hour dwell times, turning every visitor into a high-intent, engaged shopper — something no standalone retail location can replicate.",
-    events: "From 5,000-seat concerts to 300,000 sq ft convention activations, American Dream's venues deliver the scale, logistics, and audience that event producers dream of.",
-    sponsorship: "With 40M annual visitors, $95K average household income, and 8.4M social followers, American Dream delivers brand exposure that no single media buy can replicate.",
-    dining: "Dining at American Dream extends dwell time by an average of 90 minutes — turning a shopping trip into a full-day experience that benefits every tenant in the property.",
-    contact: "The opportunity to be part of American Dream is rare, time-sensitive, and backed by proven ROI. The question isn't whether you can afford to be here — it's whether you can afford not to be.",
-  }[id] || "American Dream delivers unmatched scale, premium demographics, and proven ROI for every partner, tenant, and event producer in the building.");
-
-  const t = theme === 'light' ? lightBtn : darkBtn;
-
-  return (
-    <>
-      <motion.button onClick={ask}
-        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-        className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[240] flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl transition-all"
-        style={{ background: `${color}dd`, color: '#fff', backdropFilter: 'blur(12px)', border: `1px solid ${color}`, boxShadow: `0 4px 20px ${color}44` }}
-      >
-        <Sparkles size={13} /> Ask AI About This
-      </motion.button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-40 left-1/2 -translate-x-1/2 z-[241] w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl p-6 shadow-2xl"
-            style={{ background: 'rgba(10,10,10,0.96)', border: `1px solid ${color}44`, backdropFilter: 'blur(20px)' }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} style={{ color }} />
-                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color }}>Gemini AI Pitch</span>
-              </div>
-              <button onClick={() => setOpen(false)} className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white">
-                <X size={12} />
-              </button>
-            </div>
-            {loading
-              ? <div className="flex items-center gap-3 text-white/40"><Loader size={14} className="animate-spin" /><span className="text-xs">Generating pitch...</span></div>
-              : <p className="text-white/80 text-sm leading-relaxed">{text}</p>
-            }
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
 
 /* ─── Color Toggle ─── */
-function ColorToggle({ slides, current, go, theme }: { slides: SlideInfo[]; current: number; go: (n: number) => void; theme: 'dark'|'light' }) {
+function ColorToggle({ slides, current, go, theme }: { slides: SlideInfo[]; current: number; go: (n: number) => void; theme: 'dark' | 'light' }) {
   const [open, setOpen] = useState(false);
   const t = theme === 'light' ? lightBtn : darkBtn;
 
@@ -635,12 +570,7 @@ function ColorToggle({ slides, current, go, theme }: { slides: SlideInfo[]; curr
         className="flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border transition-all shadow-lg"
         style={{ background: t.bg, borderColor: t.border, color: t.text }}
       >
-        <div className="flex gap-0.5">
-          {slides.slice(0, 6).map((s, i) => (
-            <div key={i} className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-          ))}
-        </div>
-        <span className="text-[9px] font-black uppercase tracking-widest hidden sm:block">Slides</span>
+        <LayoutGrid size={14} />
       </motion.button>
 
       <AnimatePresence>
@@ -722,7 +652,7 @@ function AudienceSwitcher() {
 }
 
 /* ─── Auto Present with Countdown ─── */
-function AutoPresent({ current, total, next, theme }: { current: number; total: number; next: () => void; theme: 'dark'|'light' }) {
+function AutoPresent({ current, total, next, theme }: { current: number; total: number; next: () => void; theme: 'dark' | 'light' }) {
   const [active, setActive] = useState(false);
   const [countdown, setCountdown] = useState(9);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -756,28 +686,32 @@ function AutoPresent({ current, total, next, theme }: { current: number; total: 
   return (
     <motion.button
       onClick={() => { setActive(a => !a); setCountdown(DURATION); }}
-      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-      className="fixed top-5 right-36 z-[250] flex items-center gap-2.5 px-4 py-2.5 rounded-full backdrop-blur-md border transition-all text-[10px] font-black uppercase tracking-widest shadow-lg"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+      animate={active ? {
+        boxShadow: ['0 0 0px #10b981', '0 0 15px #10b98188', '0 0 0px #10b981'],
+      } : {}}
+      transition={{ duration: 1.5, repeat: active ? Infinity : 0 }}
+      className="w-12 h-12 rounded-full backdrop-blur-md border flex items-center justify-center transition-all shadow-lg"
       style={{
         background: active ? 'rgba(16,185,129,0.15)' : t.bg,
         borderColor: active ? '#10b981' : t.border,
         color: active ? '#10b981' : t.text,
       }}
+      title={active ? `Auto-presenting (${countdown}s)` : "Auto Present"}
     >
       {active ? (
-        <>
-          <svg width="22" height="22" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+        <div className="relative flex items-center justify-center">
+          <svg width="22" height="22" className="absolute" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="11" cy="11" r={radius} fill="none" stroke="rgba(16,185,129,0.2)" strokeWidth="2.5" />
             <motion.circle cx="11" cy="11" r={radius} fill="none" stroke="#10b981" strokeWidth="2.5"
               strokeDasharray={circ} strokeDashoffset={circ - dash}
               transition={{ duration: 0.5 }} />
           </svg>
-          <span>{countdown}s</span>
-          <Pause size={11} />
-          <span>Stop</span>
-        </>
+          <Pause size={10} />
+        </div>
       ) : (
-        <><Play size={12} /><span>Present</span></>
+        <Play size={14} style={{ marginLeft: 2 }} />
       )}
     </motion.button>
   );
@@ -834,7 +768,7 @@ function Sidebar({ open, onClose, current, go }: { open: boolean; onClose: () =>
 }
 
 /* ─── Nav Arrow Button — always visible ─── */
-function NavBtn({ onClick, disabled, children, theme }: { onClick: () => void; disabled: boolean; children: React.ReactNode; theme: 'dark'|'light' }) {
+function NavBtn({ onClick, disabled, children, theme }: { onClick: () => void; disabled: boolean; children: React.ReactNode; theme: 'dark' | 'light' }) {
   const t = theme === 'light' ? lightBtn : darkBtn;
   return (
     <motion.button onClick={onClick} disabled={disabled}
@@ -849,6 +783,7 @@ function NavBtn({ onClick, disabled, children, theme }: { onClick: () => void; d
 
 /* ─── Main Engine ─── */
 export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
+  const { audience } = useAudience();
   const [current, setCurrent] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -880,7 +815,7 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
     center: { x: 0, opacity: 1 },
-    exit:  (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
+    exit: (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
   };
 
   return (
@@ -912,9 +847,6 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
         {/* Audience Switcher - top center */}
         <AudienceSwitcher />
 
-        {/* Present - top right */}
-        <AutoPresent current={current} total={total} next={next} theme={theme} />
-
         {/* Slide label - top right corner */}
         <div className="fixed top-5 right-5 z-[250] flex items-center gap-2 px-4 py-2.5 rounded-full backdrop-blur-md border shadow-lg"
           style={{ background: t.bg, borderColor: t.border }}>
@@ -933,11 +865,11 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
           </NavBtn>
 
           {/* Slide Tab Bar (Desktop) & Dots (Mobile) */}
-          <div className="flex items-center px-2 py-2 rounded-full backdrop-blur-md border shadow-lg overflow-x-auto no-scrollbar max-w-[calc(100vw-120px)]"
+          <div className="flex items-center px-2 py-2 rounded-full backdrop-blur-md border shadow-lg overflow-x-auto no-scrollbar max-w-[calc(100vw-12rem)] md:max-w-[calc(100vw-18rem)]"
             style={{ background: t.bg, borderColor: t.border }}>
-            
-            {/* Responsive Tabs (Shows dots only on very small screens, or tabs everywhere) */}
-            <div className="flex items-center gap-1 min-w-max">
+
+            {/* Desktop Tabs */}
+            <div className="hidden md:flex items-center gap-1 min-w-max">
               {SLIDES.map((s, i) => {
                 const isActive = current === i;
                 return (
@@ -954,25 +886,24 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
                 );
               })}
             </div>
+
+            {/* Mobile Dots */}
+            <div className="flex md:hidden items-center gap-2 px-3 h-[48px]">
+              {SLIDES.map((s, i) => (
+                <button key={i} onClick={() => go(i)} title={s.label}
+                  className="transition-all duration-300 rounded-full hover:opacity-100"
+                  style={{ width: current === i ? 18 : 6, height: 6, background: current === i ? s.color : (theme === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)') }} />
+              ))}
+            </div>
           </div>
 
           <NavBtn onClick={next} disabled={current === total - 1} theme={theme}>
             <ChevronRight size={20} />
           </NavBtn>
+
+          <AutoPresent current={current} total={total} next={next} theme={theme} />
         </div>
 
-        {/* Gemini AI - above nav */}
-        <GeminiButton slideId={slideInfo.id} color={slideInfo.color} theme={theme} />
-
-        {/* Keyboard hint - bottom right */}
-        <div className="fixed bottom-10 right-5 z-[250] hidden md:flex items-center gap-1.5"
-          style={{ color: theme === 'light' ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.2)' }}>
-          <kbd className="text-[9px] border rounded px-1.5 py-0.5"
-            style={{ borderColor: theme === 'light' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)' }}>←</kbd>
-          <kbd className="text-[9px] border rounded px-1.5 py-0.5"
-            style={{ borderColor: theme === 'light' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)' }}>→</kbd>
-          <span className="text-[9px] uppercase tracking-wider">navigate</span>
-        </div>
 
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} current={current} go={go} />
       </div>

@@ -1,111 +1,342 @@
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { motion, AnimatePresence, useInView } from 'motion/react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
-export default function EventsDeck() {
+export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
+
+// --- FILM GRAIN ---
+function FilmGrain() {
+  const [baseFreq, setBaseFreq] = useState('0.85');
+
+  useEffect(() => {
+    let frameId: number;
+    let count = 0;
+    const updateFreq = () => {
+      if (count % 3 === 0) {
+        const freq = 0.8 + Math.random() * 0.1;
+        setBaseFreq(freq.toString());
+      }
+      count++;
+      frameId = requestAnimationFrame(updateFreq);
+    };
+    frameId = requestAnimationFrame(updateFreq);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
   return (
-    <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex items-center relative">
-      
-      {/* Background abstract element */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-900/10 blur-[150px] rounded-full pointer-events-none translate-x-1/3 -translate-y-1/3" />
+    <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
+      <svg width="100%" height="100%">
+        <filter id="grain-events">
+          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grain-events)" />
+      </svg>
+    </div>
+  );
+}
 
-      <div className="w-full grid grid-cols-1 lg:grid-cols-2 h-full z-10">
-        
-        {/* Left: Copy & Venues */}
-        <div className="flex flex-col justify-center px-8 md:px-16 pt-24 lg:pt-0">
-          <motion.div
+// --- COUNT PILL ---
+const CountPill = ({ target, suffix = '', prefix = '' }: { target: number, suffix?: string, prefix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 2000;
+    const startTime = performance.now();
+
+    const update = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutExpo
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(ease * target));
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    };
+    requestAnimationFrame(update);
+  }, [inView, target]);
+
+  return (
+    <span ref={ref}>
+      {prefix}{count.toLocaleString()}{suffix}
+    </span>
+  );
+};
+
+function StageFloor() {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -8, -5]}>
+      <planeGeometry args={[60, 40]} />
+      <meshStandardMaterial
+        color="#0a0a0f"
+        metalness={0.9}
+        roughness={0.1}
+        opacity={0.8}
+        transparent
+      />
+    </mesh>
+  );
+}
+
+function ConcertLights() {
+  const light1 = useRef<THREE.SpotLight>(null);
+  const light2 = useRef<THREE.SpotLight>(null);
+  const light3 = useRef<THREE.SpotLight>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (light1.current) {
+      light1.current.position.x = Math.sin(t * 0.7) * 15;
+      light1.current.position.z = Math.cos(t * 0.5) * 5 - 8;
+    }
+    if (light2.current) {
+      light2.current.position.x = Math.sin(t * 0.4 + 2) * 12;
+      light2.current.position.z = Math.cos(t * 0.6 + 1) * 5 - 8;
+    }
+    if (light3.current) {
+      light3.current.position.x = Math.sin(t * 0.9 + 4) * 10;
+      light3.current.position.z = Math.cos(t * 0.3 + 3) * 5 - 8;
+    }
+  });
+
+  return (
+    <>
+      <spotLight
+        ref={light1}
+        position={[0, 20, -8]}
+        angle={0.15}
+        penumbra={0.8}
+        intensity={80}
+        color="#8b5cf6"
+        castShadow={false}
+        target-position={[0, -8, -5]}
+      />
+      <spotLight
+        ref={light2}
+        position={[5, 20, -8]}
+        angle={0.12}
+        penumbra={0.9}
+        intensity={60}
+        color="#f59e0b"
+        castShadow={false}
+        target-position={[0, -8, -5]}
+      />
+      <spotLight
+        ref={light3}
+        position={[-5, 20, -8]}
+        angle={0.18}
+        penumbra={0.7}
+        intensity={50}
+        color="#ffffff"
+        castShadow={false}
+        target-position={[0, -8, -5]}
+      />
+    </>
+  );
+}
+
+// --- THREE.JS STADIUM PARTICLES ---
+const CrowdParticles = () => {
+  const purpleRef = useRef<THREE.InstancedMesh>(null);
+  const amberRef = useRef<THREE.InstancedMesh>(null);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  const particles = useMemo(() => {
+    const pts = [];
+    const rows = 30;
+    const perRow = 80;
+    for (let row = 0; row < rows; row++) {
+      const radius = 8 + row * 1.2;
+      const y = row * 0.6 - 5;
+      for (let j = 0; j < perRow; j++) {
+        const angle = (j / perRow) * Math.PI; // half circle = stadium front
+        const x = radius * Math.cos(angle);
+        const z = radius * Math.sin(angle) - 10;
+        pts.push({
+          x, y, z,
+          row,
+          col: j,
+          isAmber: Math.random() > 0.75,
+        });
+      }
+    }
+    return pts;
+  }, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    let pi = 0, ai = 0;
+
+    particles.forEach((p) => {
+      // Stadium wave: ripple based on column position + time
+      const wave = Math.sin(t * 2 - p.col * 0.3) * 1.2;
+      // Breathe: slow global pulse
+      const breathe = Math.sin(t * 0.8 + p.row * 0.2) * 0.3;
+      // Excitement: random flicker on some particles
+      const flicker = Math.sin(t * 8 + p.col * p.row) * 0.1;
+
+      dummy.position.set(p.x, p.y + wave + breathe + flicker, p.z);
+      dummy.scale.setScalar(0.8 + Math.abs(Math.sin(t + p.col)) * 0.4);
+      dummy.updateMatrix();
+
+      if (p.isAmber && amberRef.current) {
+        amberRef.current.setMatrixAt(ai++, dummy.matrix);
+      } else if (purpleRef.current) {
+        purpleRef.current.setMatrixAt(pi++, dummy.matrix);
+      }
+    });
+
+    if (purpleRef.current) purpleRef.current.instanceMatrix.needsUpdate = true;
+    if (amberRef.current) amberRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  const purpleCount = Math.floor(particles.length * 0.75);
+  const amberCount = particles.length - purpleCount;
+
+  return (
+    <>
+      <instancedMesh ref={purpleRef} args={[undefined, undefined, purpleCount]}>
+        <sphereGeometry args={[0.18, 8, 8]} />
+        <meshBasicMaterial color="#8b5cf6" toneMapped={false} transparent opacity={0.85} />
+      </instancedMesh>
+      <instancedMesh ref={amberRef} args={[undefined, undefined, amberCount]}>
+        <sphereGeometry args={[0.18, 8, 8]} />
+        <meshBasicMaterial color="#f59e0b" toneMapped={false} transparent opacity={0.9} />
+      </instancedMesh>
+    </>
+  );
+};
+
+export default function EventsDeck({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
+  const headline = currentAudience === 'event'
+    ? "YOUR STAGE.\n40 MILLION WITNESSES."
+    : "CONCERTS.\nCONVENTIONS.\nCULTURE.";
+
+  return (
+    <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex relative font-sans">
+      <FilmGrain />
+
+      {/* Global Ambient Glow */}
+      <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-purple-900/20 blur-[150px] rounded-full pointer-events-none translate-x-1/4 translate-y-1/4 z-0" />
+
+      {/* LEFT PANEL (60%) */}
+      <motion.div
+        initial={{ x: '-20%', opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+        className="w-[60%] h-full relative z-10 flex flex-col justify-center px-16 xl:px-24"
+      >
+        <div className="mb-12">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-500 mb-4"
+          >
+            Event Platform
+          </motion.p>
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ delay: 0.5 }}
+            className="text-[clamp(2.5rem,4vw,4.5rem)] font-black uppercase tracking-tighter leading-[0.85] whitespace-pre-line"
           >
-            <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] mb-4 text-purple-500">
-              Event Hosting
-            </p>
-            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black uppercase tracking-tighter leading-[0.9] mb-12">
-              Your Event.<br />Our Platform.
-            </h2>
+            {headline}
+          </motion.h2>
+        </div>
+
+        {/* VENUE CARDS */}
+        <div className="flex gap-6 mb-12 w-full max-w-3xl">
+          {/* Card 1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className="flex-1 p-8 rounded-3xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-md relative overflow-hidden group transition-colors hover:border-amber-500/50 cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">Performing Arts Center</h3>
+            <p className="text-3xl xl:text-4xl font-black text-amber-500 tracking-tighter mb-4 relative z-10">5,000 SEATS</p>
+            <p className="text-xs xl:text-sm font-medium text-zinc-300 mb-6 line-clamp-2 relative z-10">Concerts · Award Shows · Corporate Events</p>
+            <div className="inline-block px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-[9px] font-bold text-amber-500 uppercase tracking-widest relative z-10">
+              SOLD OUT 80% OF DATES
+            </div>
           </motion.div>
 
-          <div className="flex flex-col gap-6 mb-12">
-            {/* Venue 1 */}
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="p-6 md:p-8 rounded-2xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm"
-            >
-              <div className="flex items-start gap-4">
-                <div className="text-4xl">🎤</div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight mb-1 text-white">Performing Arts Center</h3>
-                  <p className="text-purple-400 font-bold mb-2">5,000 Seats</p>
-                  <p className="text-zinc-400 text-sm md:text-base">Concerts · Award Shows · Corporate Events</p>
-                </div>
-              </div>
-            </motion.div>
+          {/* Card 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className="flex-1 p-8 rounded-3xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-md relative overflow-hidden group transition-colors hover:border-purple-500/50 cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">Exposition Center</h3>
+            <p className="text-3xl xl:text-4xl font-black text-purple-500 tracking-tighter mb-4 relative z-10">300K SQ FT</p>
+            <p className="text-xs xl:text-sm font-medium text-zinc-300 mb-6 line-clamp-2 relative z-10">Trade Shows · Product Launches · Conventions</p>
+            <div className="inline-block px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full text-[9px] font-bold text-purple-500 uppercase tracking-widest relative z-10">
+              200+ EVENTS / YEAR
+            </div>
+          </motion.div>
+        </div>
 
-            {/* Venue 2 */}
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="p-6 md:p-8 rounded-2xl bg-zinc-900/50 border border-zinc-800 backdrop-blur-sm"
-            >
-              <div className="flex items-start gap-4">
-                <div className="text-4xl">🏛️</div>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight mb-1 text-white">Exposition Center</h3>
-                  <p className="text-purple-400 font-bold mb-2">300,000 Sq Ft</p>
-                  <p className="text-zinc-400 text-sm md:text-base">Trade Shows · Conventions · Product Launches</p>
-                </div>
-              </div>
-            </motion.div>
+        {/* STAT STRIP & CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="flex items-center justify-between w-full max-w-3xl"
+        >
+          <div className="flex gap-4 xl:gap-8 text-[9px] xl:text-[11px] font-black uppercase tracking-widest text-zinc-400">
+            <div className="flex items-center gap-1 xl:gap-2">
+              <span className="text-white"><CountPill target={20} /></span> <span className="text-zinc-600">MIN FROM NYC</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-zinc-700 my-auto" />
+            <div className="flex items-center gap-1 xl:gap-2">
+              <span className="text-white"><CountPill target={30000} /></span> <span className="text-zinc-600">PARKING</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-zinc-700 my-auto" />
+            <div className="flex items-center gap-1 xl:gap-2">
+              <span className="text-white"><CountPill target={5} suffix="M" /></span> <span className="text-zinc-600">EVENT VISITORS / YR</span>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            <button className="px-8 py-4 bg-purple-600 hover:bg-purple-500 rounded-full text-sm font-bold uppercase tracking-widest text-white transition-colors mb-8">
-              Book Your Event →
-            </button>
+          <button className="px-6 xl:px-8 py-3 xl:py-4 bg-purple-600 hover:bg-purple-500 transition-colors rounded-full text-white text-[9px] xl:text-[10px] font-black uppercase tracking-[0.2em] shrink-0 ml-4">
+            Book Your Event →
+          </button>
+        </motion.div>
+      </motion.div>
 
-            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">
-              200+ Events / Year <span className="text-zinc-700 mx-2">·</span> 30,000 Parking Spots <span className="text-zinc-700 mx-2">·</span> 20 min from Penn Station
-            </p>
-          </motion.div>
+      {/* RIGHT PANEL (40%) - THREE.JS */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2, delay: 0.5 }}
+        className="w-[40%] h-full relative z-0"
+      >
+        <Canvas camera={{ position: [0, 2, 22], fov: 60 }} shadows>
+          <ambientLight intensity={0.2} />
+          <ConcertLights />
+          <StageFloor />
+          <CrowdParticles />
+        </Canvas>
+
+        {/* Overlay Text */}
+        <div className="absolute bottom-16 w-full text-center pointer-events-none z-10">
+          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-500">
+            Your Brand On This Stage
+          </p>
         </div>
 
-        {/* Right: Stylized Visual */}
-        <div className="hidden lg:flex flex-col justify-center items-center relative p-16">
-          <motion.div
-            initial={{ opacity: 0, x: 50, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="w-full max-w-lg aspect-[4/5] rounded-[40px] border border-zinc-800 bg-gradient-to-tr from-zinc-900 to-zinc-950 p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/20 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2" />
-            
-            <div className="relative z-10 flex justify-between items-start">
-              <div className="w-16 h-16 rounded-full border border-zinc-700 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-purple-500" />
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">Scale</p>
-                <p className="text-xl font-bold text-white">Unmatched</p>
-              </div>
-            </div>
-
-            <div className="relative z-10">
-              <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-zinc-700 to-transparent mb-8" />
-              <h3 className="text-4xl font-black uppercase tracking-tighter leading-[0.9] text-zinc-300">
-                The Stage <br />Is Set.
-              </h3>
-            </div>
-          </motion.div>
-        </div>
-
-      </div>
+        {/* Gradient mask to blend edges smoothly */}
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-transparent pointer-events-none z-0" />
+      </motion.div>
     </div>
   );
 }

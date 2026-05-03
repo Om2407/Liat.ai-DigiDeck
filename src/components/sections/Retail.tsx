@@ -252,7 +252,7 @@ const brandData = [
     desc: 'Since 1837, Hermès has remained faithful to its artisan model. World-renowned for leather goods, silk scarves, and Birkin bags.',
     why: 'Ultra-high-net-worth clientele within 20 miles. Average transaction: $2,400+',
     founded: '1837', origin: 'Paris, France',
-    svgLogo: <svg viewBox="0 0 140 28" style={{width:120,height:22}}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="700" fill="#de7a31" letterSpacing="3">HERMÈS</text></svg>,
+    svgLogo: <svg viewBox="0 0 140 28" style={{ width: 120, height: 22 }}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="700" fill="#de7a31" letterSpacing="3">HERMÈS</text></svg>,
   },
   {
     name: 'Gucci', color: '#006633', url: 'https://www.gucci.com',
@@ -260,7 +260,7 @@ const brandData = [
     desc: 'Influential, innovative and progressive. Gucci redefines luxury for the 21st century with bold designs and cultural relevance.',
     why: '40M+ annual visitors, 60% aged 18–45. Prime demographic for luxury fashion.',
     founded: '1921', origin: 'Florence, Italy',
-    svgLogo: <svg viewBox="0 0 90 28" style={{width:76,height:22}}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="700" fill="#006633" letterSpacing="2">GUCCI</text></svg>,
+    svgLogo: <svg viewBox="0 0 90 28" style={{ width: 76, height: 22 }}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="700" fill="#006633" letterSpacing="2">GUCCI</text></svg>,
   },
   {
     name: 'Saint Laurent', color: '#000000', url: 'https://www.ysl.com',
@@ -268,7 +268,7 @@ const brandData = [
     desc: 'Founded in 1961, Saint Laurent remains a symbol of Parisian elegance and rock-and-roll rebellion. Iconic for its tuxedo suit.',
     why: 'Proximity to NYC fashion market. Foot traffic from 8M annual tri-state shoppers.',
     founded: '1961', origin: 'Paris, France',
-    svgLogo: <svg viewBox="0 0 200 22" style={{width:160,height:16}}><text x="2" y="16" fontFamily="Arial,sans-serif" fontSize="11" fontWeight="700" fill="#000" letterSpacing="4">SAINT LAURENT</text></svg>,
+    svgLogo: <svg viewBox="0 0 200 22" style={{ width: 160, height: 16 }}><text x="2" y="16" fontFamily="Arial,sans-serif" fontSize="11" fontWeight="700" fill="#000" letterSpacing="4">SAINT LAURENT</text></svg>,
   },
   {
     name: 'Cartier', color: '#CC0000', url: 'https://www.cartier.com',
@@ -276,7 +276,7 @@ const brandData = [
     desc: 'Jeweler of Kings, King of Jewelers. Cartier produces watches, jewelry, and luxury items that transcend time.',
     why: 'Highest per-sq-ft revenue potential. Average jewelry purchase: $8,000+',
     founded: '1847', origin: 'Paris, France',
-    svgLogo: <svg viewBox="0 0 110 28" style={{width:88,height:22}}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="17" fontWeight="400" fill="#CC0000" letterSpacing="3">CARTIER</text></svg>,
+    svgLogo: <svg viewBox="0 0 110 28" style={{ width: 88, height: 22 }}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="17" fontWeight="400" fill="#CC0000" letterSpacing="3">CARTIER</text></svg>,
   },
   {
     name: 'Dior', color: '#1a1a1a', url: 'https://www.dior.com',
@@ -284,7 +284,7 @@ const brandData = [
     desc: 'The House of Dior has defined the modern silhouette since 1947. A testament to timeless style and innovative haute couture.',
     why: 'Event-driven retail — 200+ mall events/year drive premium foot traffic.',
     founded: '1946', origin: 'Paris, France',
-    svgLogo: <svg viewBox="0 0 70 28" style={{width:56,height:22}}><text x="2" y="22" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#1a1a1a" letterSpacing="3">Dior</text></svg>,
+    svgLogo: <svg viewBox="0 0 70 28" style={{ width: 56, height: 22 }}><text x="2" y="22" fontFamily="Georgia,serif" fontSize="20" fontWeight="700" fill="#1a1a1a" letterSpacing="3">Dior</text></svg>,
   },
   {
     name: 'Louis Vuitton', color: '#211205', url: 'https://www.louisvuitton.com',
@@ -292,7 +292,7 @@ const brandData = [
     desc: 'The Art of Travel since 1854. Legendary trunks, leather goods, and the iconic LV monogram define global luxury.',
     why: 'Only 8 miles from Manhattan — gateway to the world\'s wealthiest consumer market.',
     founded: '1854', origin: 'Paris, France',
-    svgLogo: <svg viewBox="0 0 60 44" style={{width:42,height:32}}><text x="2" y="36" fontFamily="Georgia,serif" fontSize="34" fontWeight="700" fill="#211205" letterSpacing="-2">LV</text></svg>,
+    svgLogo: <svg viewBox="0 0 60 44" style={{ width: 42, height: 32 }}><text x="2" y="36" fontFamily="Georgia,serif" fontSize="34" fontWeight="700" fill="#211205" letterSpacing="-2">LV</text></svg>,
   },
   {
     name: 'Chanel', color: '#111111', url: 'https://www.chanel.com',
@@ -301,12 +301,12 @@ const brandData = [
     why: 'Mall\'s luxury wing delivers white-glove experience matching Chanel\'s brand standards.',
     founded: '1910', origin: 'Paris, France',
     svgLogo: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" style={{width:38,height:38}}>
-        <circle cx="15" cy="25" r="13" fill="none" stroke="#000" strokeWidth="3"/>
-        <circle cx="35" cy="25" r="13" fill="none" stroke="#000" strokeWidth="3"/>
-        <rect x="15" y="12" width="20" height="26" fill="white"/>
-        <path d="M15 12 Q25 12 25 25 Q25 38 15 38" fill="none" stroke="#000" strokeWidth="3"/>
-        <path d="M35 12 Q25 12 25 25 Q25 38 35 38" fill="none" stroke="#000" strokeWidth="3"/>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" style={{ width: 38, height: 38 }}>
+        <circle cx="15" cy="25" r="13" fill="none" stroke="#000" strokeWidth="3" />
+        <circle cx="35" cy="25" r="13" fill="none" stroke="#000" strokeWidth="3" />
+        <rect x="15" y="12" width="20" height="26" fill="white" />
+        <path d="M15 12 Q25 12 25 25 Q25 38 15 38" fill="none" stroke="#000" strokeWidth="3" />
+        <path d="M35 12 Q25 12 25 25 Q25 38 35 38" fill="none" stroke="#000" strokeWidth="3" />
       </svg>
     ),
   },
@@ -316,7 +316,7 @@ const brandData = [
     desc: 'Prada challenges fashion conventions with its intellectual approach — balancing tradition and innovation at every turn.',
     why: 'Flagship-grade space available in luxury wing. Perfect for Prada\'s architectural retail vision.',
     founded: '1913', origin: 'Milan, Italy',
-    svgLogo: <svg viewBox="0 0 88 28" style={{width:76,height:20}}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="400" fill="#333" letterSpacing="3">PRADA</text></svg>,
+    svgLogo: <svg viewBox="0 0 88 28" style={{ width: 76, height: 20 }}><text x="2" y="21" fontFamily="Georgia,serif" fontSize="18" fontWeight="400" fill="#333" letterSpacing="3">PRADA</text></svg>,
   },
   {
     name: 'Valentino', color: '#cc0000', url: 'https://www.valentino.com',
@@ -324,7 +324,7 @@ const brandData = [
     desc: 'Bold red, romantic couture. Valentino embodies Italian passion, craftsmanship, and a fearless sense of modern style.',
     why: 'Growing US market presence. American Dream offers ideal tri-state flagship opportunity.',
     founded: '1960', origin: 'Rome, Italy',
-    svgLogo: <svg viewBox="0 0 130 22" style={{width:118,height:18}}><text x="2" y="17" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="700" fill="#cc0000" letterSpacing="4">VALENTINO</text></svg>,
+    svgLogo: <svg viewBox="0 0 130 22" style={{ width: 118, height: 18 }}><text x="2" y="17" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="700" fill="#cc0000" letterSpacing="4">VALENTINO</text></svg>,
   },
 ];
 
@@ -354,9 +354,8 @@ export default function Retail({ onNavigateBrand }: { onNavigateBrand?: (brand: 
         <div className="flex flex-wrap justify-center gap-3 mb-16">
           {specialties.map((s) => (
             <button key={s} onClick={() => setActiveFilter(s)}
-              className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 border-2 ${
-                activeFilter === s ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300'
-              }`}>
+              className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 border-2 ${activeFilter === s ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300'
+                }`}>
               {s}
             </button>
           ))}
