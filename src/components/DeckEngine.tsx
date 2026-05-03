@@ -500,9 +500,6 @@ import { useState, useEffect, useCallback, createContext, useContext, useRef } f
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, LayoutGrid, X, Play, Pause } from 'lucide-react';
 import { useAudience, AUDIENCE_CONFIG, type Audience } from '../context/AudienceContext';
-import html2canvas from 'html2canvas';
-import * as THREE from 'three';
-import WebGLTransition from './WebGLTransition';
 
 /* ─── Deck Context ─── */
 interface DeckCtx { current: number; total: number; go: (n: number) => void; next: () => void; prev: () => void; }
@@ -791,72 +788,14 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
   const { audience } = useAudience();
   const [current, setCurrent] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // WebGL Transition State
-  const [nextIndex, setNextIndex] = useState<number | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [textures, setTextures] = useState<{t1: THREE.Texture, t2: THREE.Texture} | null>(null);
-  
-  const currentRef = useRef<HTMLDivElement>(null);
-  const nextRef = useRef<HTMLDivElement>(null);
+  const [direction, setDirection] = useState(1);
   const total = slides.length;
 
-  const capture = async (el: HTMLElement) => {
-    const canvas = await html2canvas(el, { backgroundColor: '#080808', useCORS: true, logging: false });
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  };
-
   const go = useCallback((n: number) => {
-    if (n < 0 || n >= total || isTransitioning || n === current) return;
-    setIsTransitioning(true);
-
-    // Bypass WebGL if we don't have refs
-    if (!currentRef.current) {
-      setCurrent(n);
-      setIsTransitioning(false);
-      return;
-    }
-
-    // Skip WebGL transition if slide contains canvas (e.g. Three.js particles)
-    const hasCanvas = currentRef.current?.querySelector('canvas');
-    if (hasCanvas) {
-      setCurrent(n);
-      setIsTransitioning(false);
-      return;
-    }
-
-    // 1. Render next slide off-screen to capture
-    setNextIndex(n);
-
-    // Wait for next slide to mount, then capture both
-    setTimeout(async () => {
-      try {
-        if (currentRef.current && nextRef.current) {
-          const [tex1, tex2] = await Promise.all([
-            capture(currentRef.current),
-            capture(nextRef.current)
-          ]);
-          setTextures({ t1: tex1, t2: tex2 });
-        } else {
-          throw new Error("Missing refs for capture");
-        }
-      } catch (err) {
-        console.error("WebGL Transition Capture Failed:", err);
-        setCurrent(n);
-        setIsTransitioning(false);
-        setNextIndex(null);
-      }
-    }, 150);
-  }, [current, total, isTransitioning]);
-
-  const handleTransitionComplete = useCallback(() => {
-    setCurrent(nextIndex as number);
-    setNextIndex(null);
-    setTextures(null);
-    setIsTransitioning(false);
-  }, [nextIndex]);
+    if (n < 0 || n >= total || n === current) return;
+    setDirection(n > current ? 1 : -1);
+    setCurrent(n);
+  }, [current, total]);
 
   const next = useCallback(() => go(current + 1), [current, go]);
   const prev = useCallback(() => go(current - 1), [current, go]);
@@ -881,21 +820,19 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
         <ProgressBar current={current} total={total} color={slideInfo.color} />
 
         {/* Slides */}
-        <div ref={currentRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden z-[10]">
-          {slides[current]}
-        </div>
-
-        {/* Next Slide (Off-screen for capture) */}
-        {nextIndex !== null && textures === null && (
-          <div ref={nextRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden z-[-1]" style={{ opacity: 0.99 }}>
-            {slides[nextIndex]}
-          </div>
-        )}
-
-        {/* WebGL Overlay */}
-        {textures && (
-          <WebGLTransition texture1={textures.t1} texture2={textures.t2} onComplete={handleTransitionComplete} />
-        )}
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={current}
+            custom={direction}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="w-full h-screen absolute inset-0 overflow-y-auto overflow-x-hidden z-[10]"
+          >
+            {slides[current]}
+          </motion.div>
+        </AnimatePresence>
 
         {/* ── TOP BAR ── */}
         {/* Menu - top left */}

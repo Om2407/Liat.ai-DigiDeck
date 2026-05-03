@@ -17,7 +17,7 @@ interface AudienceCtx {
 const Ctx = createContext<AudienceCtx>({ audience: 'all', setAudience: () => {} });
 export const useAudience = () => useContext(Ctx);
 
-export function AudienceProvider({ children }: { children: React.ReactNode }) {
-  const [audience, setAudience] = useState<Audience>('all');
+export function AudienceProvider({ children, initialAudience = 'all' }: { children: React.ReactNode, initialAudience?: Audience }) {
+  const [audience, setAudience] = useState<Audience>(initialAudience);
   return <Ctx.Provider value={{ audience, setAudience }}>{children}</Ctx.Provider>;
 }

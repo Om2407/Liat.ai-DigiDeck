@@ -267,18 +267,18 @@ function MapSection({ inView }: { inView: boolean }) {
       setMapLoaded(true);
       map.flyTo({ center: [-74.0776, 40.8133], zoom: 13.5, pitch: 62, bearing: -20, duration: 3800, essential: true });
 
-      // 3D buildings layer
+      // 3D buildings layer (Removed maptiler to fix 404)
       try {
-        map.addLayer({
-          id: '3d-buildings', type: 'fill-extrusion',
-          source: { type: 'vector', url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf' } as never,
-          'source-layer': 'building', minzoom: 11,
-          paint: {
-            'fill-extrusion-color': ['interpolate', ['linear'], ['get', 'render_height'], 0, '#0d1117', 50, '#111827', 200, '#1e293b'],
-            'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 11, 0, 16, ['get', 'render_height']],
-            'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.75,
-          },
-        });
+        // map.addLayer({
+        //   id: '3d-buildings', type: 'fill-extrusion',
+        //   source: { type: 'vector', url: 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf' } as never,
+        //   'source-layer': 'building', minzoom: 11,
+        //   paint: {
+        //     'fill-extrusion-color': ['interpolate', ['linear'], ['get', 'render_height'], 0, '#0d1117', 50, '#111827', 200, '#1e293b'],
+        //     'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 11, 0, 16, ['get', 'render_height']],
+        //     'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.75,
+        //   },
+        // });
       } catch (_) { /* fallback: no 3D buildings if source unavailable */ }
 
       // Mall marker — native geojson point
@@ -329,18 +329,22 @@ function MapSection({ inView }: { inView: boolean }) {
       // Animate line draw
       let startTime = performance.now();
       const animateRoute = (timestamp: number) => {
-        if (!mapRef.current || !mapRef.current.getLayer('route')) return;
-        const progress = Math.min((timestamp - startTime) / 2500, 1);
-        
-        if (progress < 1) {
-          mapRef.current.setPaintProperty('route', 'line-dasharray', [progress * 250, 1000]);
-          drawAnimId.current = requestAnimationFrame(animateRoute);
-        } else {
-          const pulsePhase = (timestamp - startTime - 2500) / 1500;
-          const op = 0.4 + 0.45 * (0.5 + 0.5 * Math.sin(pulsePhase * Math.PI * 2));
-          mapRef.current.setPaintProperty('route', 'line-dasharray', [3, 4]);
-          mapRef.current.setPaintProperty('route', 'line-opacity', op);
-          drawAnimId.current = requestAnimationFrame(animateRoute);
+        try {
+          if (!mapRef.current || !mapRef.current.getLayer('route')) return;
+          const progress = Math.min((timestamp - startTime) / 2500, 1);
+          
+          if (progress < 1) {
+            mapRef.current.setPaintProperty('route', 'line-dasharray', [progress * 250, 1000]);
+            drawAnimId.current = requestAnimationFrame(animateRoute);
+          } else {
+            const pulsePhase = (timestamp - startTime - 2500) / 1500;
+            const op = 0.4 + 0.45 * (0.5 + 0.5 * Math.sin(pulsePhase * Math.PI * 2));
+            mapRef.current.setPaintProperty('route', 'line-dasharray', [3, 4]);
+            mapRef.current.setPaintProperty('route', 'line-opacity', op);
+            drawAnimId.current = requestAnimationFrame(animateRoute);
+          }
+        } catch (e) {
+          // silently ignore maplibre animation errors
         }
       };
       drawAnimId.current = requestAnimationFrame(animateRoute);

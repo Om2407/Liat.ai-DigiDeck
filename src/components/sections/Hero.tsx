@@ -340,11 +340,11 @@ export default function Hero() {
         muted
         loop
         playsInline
+        poster="/images/hero-poster.jpg"
+        src="/videos/hero-main.mp4"
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
         style={{ filter: 'brightness(0.4) saturate(1.2)' }}
-      >
-        <source src="/videos/hero-main.mp4" type="video/mp4" />
-      </video>
+      />
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-zinc-950/60 via-zinc-950/30 to-zinc-950/80 pointer-events-none" />
 
       {/* KEN BURNS BACKGROUND */}
@@ -458,7 +458,7 @@ export default function Hero() {
               className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 aspect-video group cursor-pointer"
               style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}
             >
-              <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+              <video autoPlay muted loop playsInline preload="none" className="absolute inset-0 w-full h-full object-cover">
                 <source src={VIDEOS[1]} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -481,7 +481,7 @@ export default function Hero() {
               className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 aspect-video group cursor-pointer"
               style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)' }}
             >
-              <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+              <video autoPlay muted loop playsInline preload="none" className="absolute inset-0 w-full h-full object-cover">
                 <source src={VIDEOS[0]} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />

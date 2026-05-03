@@ -347,7 +347,7 @@ export default function EntertainmentDeck({ currentAudience = 'all' }: { current
       {/* ── AMBIENT VIDEO BACKGROUND ── */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <video
-          autoPlay loop muted playsInline
+          autoPlay loop muted playsInline preload="none"
           className="absolute w-full h-full object-cover"
           src="/videos/entertainment.mp4"
         />
@@ -466,7 +466,7 @@ export default function EntertainmentDeck({ currentAudience = 'all' }: { current
               {/* Top 60% */}
               <div className="relative overflow-hidden" style={{ height: '60%' }}>
                 {!imgErrors[attr.id] ? (
-                  <img src={attr.img} alt={attr.name}
+                  <img src={attr.img} alt={attr.name} loading="lazy"
                     onError={() => setImgErrors(prev => ({ ...prev, [attr.id]: true }))}
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ transform: hoveredId === attr.id ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.7s ease', filter: hoveredId === attr.id ? 'brightness(0.28) saturate(1.3)' : 'brightness(0.82)' }} />
@@ -475,7 +475,7 @@ export default function EntertainmentDeck({ currentAudience = 'all' }: { current
                 )}
 
                 {/* YT thumbnail on hover */}
-                <img src={`https://img.youtube.com/vi/${attr.youtubeId}/maxresdefault.jpg`} alt=""
+                <img src={`https://img.youtube.com/vi/${attr.youtubeId}/maxresdefault.jpg`} alt="" loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                   style={{ opacity: hoveredId === attr.id ? 0.6 : 0, transition: 'opacity 0.5s ease' }} />
 

@@ -264,7 +264,7 @@ export default function EventsDeck({ currentAudience = 'all' }: { currentAudienc
         transition={{ duration: 2, delay: 0.5 }}
         className="hidden lg:block lg:w-[40%] h-full relative z-0"
       >
-        <Canvas camera={{ position: [0, 2, 22], fov: 60 }} shadows>
+        <Canvas frameloop="demand" gl={{ powerPreference: 'high-performance', antialias: false }} camera={{ position: [0, 2, 22], fov: 60 }} shadows>
           <ambientLight intensity={0.2} />
           <ConcertLights />
           <StageFloor />

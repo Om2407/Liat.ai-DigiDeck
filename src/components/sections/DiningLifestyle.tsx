@@ -126,7 +126,7 @@ export default function DiningLifestyle() {
                 key={i}
                 className={`rounded-2xl overflow-hidden relative group cursor-pointer transition-transform duration-300 hover:scale-[1.02] shrink-0 ${i % 3 === 0 ? 'col-span-2 h-[200px]' : 'h-[160px]'}`}
               >
-                <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+                <img src={img.url} alt={img.label} loading="lazy" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                 <p className="absolute bottom-3 left-4 text-white text-[10px] font-black uppercase tracking-widest opacity-80 group-hover:opacity-100 transition-opacity">
                   {img.label}

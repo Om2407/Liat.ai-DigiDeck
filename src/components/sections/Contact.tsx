@@ -1,6 +1,7 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import jsPDF from 'jspdf';
 
 const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
@@ -67,6 +68,139 @@ Tone: confident, premium, specific. Exactly 3 paragraphs. No bullet points. No h
 
 export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
 
+const generateProposal = (audience: AudienceType, brandName: string) => {
+  const doc = new jsPDF();
+  const pageW = doc.internal.pageSize.getWidth();
+  
+  // Background — dark
+  doc.setFillColor(5, 5, 5);
+  doc.rect(0, 0, pageW, 297, 'F');
+
+  // Header bar
+  doc.setFillColor(20, 20, 30);
+  doc.rect(0, 0, pageW, 40, 'F');
+
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('AMERICAN DREAM', 15, 18);
+  doc.setFontSize(10);
+  doc.setTextColor(150, 150, 180);
+  doc.text('PARTNERSHIP PROPOSAL', 15, 26);
+  doc.text(`Prepared for: ${brandName || 'Your Brand'}`, 15, 34);
+
+  // Date
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 120);
+  doc.text(new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', month: 'long', day: 'numeric' 
+  }), pageW - 15, 34, { align: 'right' });
+
+  // Audience-aware content
+  const content: Record<AudienceType, {
+    title: string;
+    color: [number, number, number];
+    sections: { heading: string; body: string }[];
+  }> = {
+    all: {
+      title: 'FULL OVERVIEW PARTNERSHIP',
+      color: [96, 165, 250],
+      sections: [
+        { heading: 'WHY AMERICAN DREAM', body: 'The Western Hemisphere\'s largest entertainment and retail destination. 40M+ annual visitors. 3M sq ft. 8 miles from NYC.' },
+        { heading: 'THE OPPORTUNITY', body: 'A platform unlike any other — combining retail, entertainment, dining, and events under one roof with an affluent tri-state audience.' },
+        { heading: 'KEY METRICS', body: '40M+ Annual Visitors · $180 Avg Per-Visit Spend · 4+ Hour Avg Dwell Time · $95K Average Household Income' },
+        { heading: 'NEXT STEPS', body: 'Schedule a private walkthrough. Our team will prepare a custom proposal tailored to your brand objectives and timeline.' },
+      ]
+    },
+    tenant: {
+      title: 'RETAIL LEASING PROPOSAL',
+      color: [245, 158, 11],
+      sections: [
+        { heading: 'THE RETAIL PLATFORM', body: 'Join Hermès, Gucci, Apple, and 450+ brands on the world\'s most powerful retail stage. Our visitors are high-intent buyers with $95K+ average household income.' },
+        { heading: 'YOUR SPACE', body: 'Premium locations available across The Avenue (luxury), Entertainment District, and F&B corridor. Spaces from 500 to 50,000+ sq ft.' },
+        { heading: 'REVENUE POTENTIAL', body: '$180 avg per-visit spend · 4+ hour dwell time · 40M annual footfall · 2-3x revenue vs comparable retail locations.' },
+        { heading: 'LEASING TERMS', body: 'Flexible lease structures available. Revenue share models for emerging brands. Custom buildout packages for flagship concepts.' },
+      ]
+    },
+    sponsor: {
+      title: 'BRAND SPONSORSHIP PROPOSAL',
+      color: [139, 92, 246],
+      sections: [
+        { heading: 'THE SPONSORSHIP PLATFORM', body: '5 world-record venues. 40M+ annual visitors. 120M monthly impressions across digital and physical touchpoints.' },
+        { heading: 'PARTNERSHIP TIERS', body: 'Presenting Partner ($2M+): Naming rights, year-round LED billboard, VIP access.\nActivation Partner ($500K-$2M): Brand activation zone, digital screen network.\nEvent Sponsor ($100K-$500K): Single event naming rights, on-site activation.' },
+        { heading: 'AUDIENCE PROFILE', body: '$95K avg household income · Gen-Z & Millennial core · 20M tri-state area residents · International tourist traffic.' },
+        { heading: 'NEXT STEPS', body: 'Limited premium positions available for Q1. Schedule a partnership consultation to discuss custom activation concepts.' },
+      ]
+    },
+    event: {
+      title: 'EVENT PARTNERSHIP PROPOSAL',
+      color: [16, 185, 129],
+      sections: [
+        { heading: 'THE EVENT PLATFORM', body: '5,000-seat Performing Arts Center. 300,000 sq ft Exposition Center. Indoor ski resort. Water park. All available for private events and corporate buyouts.' },
+        { heading: 'EVENT CAPABILITIES', body: 'Concerts & award shows · Corporate conventions · Product launches · Trade shows · Private buyouts · Themed experiences.' },
+        { heading: 'KEY STATS', body: '200+ events per year · 5M event visitors annually · 30,000 parking spaces · 20 min from NYC · Open 365 days.' },
+        { heading: 'NEXT STEPS', body: 'Contact our events team for availability and custom packages. Turnkey production support available for all event types.' },
+      ]
+    }
+  };
+
+  const selected = content[audience];
+  const [r, g, b] = selected.color;
+
+  // Colored accent line
+  doc.setFillColor(r, g, b);
+  doc.rect(0, 40, pageW, 3, 'F');
+
+  // Proposal type
+  doc.setFontSize(14);
+  doc.setTextColor(r, g, b);
+  doc.setFont('helvetica', 'bold');
+  doc.text(selected.title, 15, 58);
+
+  // Divider
+  doc.setDrawColor(40, 40, 60);
+  doc.setLineWidth(0.5);
+  doc.line(15, 63, pageW - 15, 63);
+
+  // Sections
+  let y = 75;
+  selected.sections.forEach((section) => {
+    // Section heading
+    doc.setFontSize(10);
+    doc.setTextColor(r, g, b);
+    doc.setFont('helvetica', 'bold');
+    doc.text(section.heading, 15, y);
+    y += 7;
+
+    // Section body
+    doc.setFontSize(9);
+    doc.setTextColor(200, 200, 210);
+    doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize(section.body, pageW - 30);
+    doc.text(lines, 15, y);
+    y += lines.length * 5.5 + 12;
+
+    // Section divider
+    doc.setDrawColor(30, 30, 45);
+    doc.line(15, y - 6, pageW - 15, y - 6);
+  });
+
+  // Footer
+  doc.setFillColor(15, 15, 25);
+  doc.rect(0, 272, pageW, 25, 'F');
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 120);
+  doc.text('1 American Dream Way, East Rutherford, NJ 07073', 15, 282);
+  doc.text('leasing@americandream.com · +1 (833) 263-7326', 15, 288);
+  doc.setTextColor(r, g, b);
+  doc.text('americandream.com', pageW - 15, 285, { align: 'right' });
+
+  // Save
+  const filename = `AmericanDream_${selected.title.replace(/\s+/g, '_')}_${brandName || 'Proposal'}.pdf`;
+  doc.save(filename);
+};
+
 export default function Contact({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
   const [brandName, setBrandName] = useState('');
   const [category, setCategory] = useState('');
@@ -111,7 +245,7 @@ export default function Contact({ currentAudience = 'all' }: { currentAudience?:
               stage your next global event — American Dream is the ultimate platform for your brand.
             </p>
 
-            <div className="flex flex-col md:flex-row gap-5 justify-center mb-16">
+            <div className="flex flex-col md:flex-row gap-5 justify-center mb-10">
               <a
                 href="mailto:leasing@americandream.com"
                 className="px-16 py-5 bg-blue-600 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-full hover:bg-blue-500 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-900/30"
@@ -125,6 +259,20 @@ export default function Contact({ currentAudience = 'all' }: { currentAudience?:
                 Sponsorship
               </button>
             </div>
+
+            <motion.button
+              onClick={() => generateProposal(currentAudience, brandName)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className="px-16 py-5 font-black uppercase tracking-[0.2em] text-[11px] rounded-full transition-all duration-300 flex items-center gap-3 mx-auto mb-16"
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: '#000',
+                boxShadow: '0 8px 30px rgba(245,158,11,0.3)',
+              }}
+            >
+              ✦ Generate Proposal PDF
+            </motion.button>
           </div>
 
           {/* ── BUILD MY PITCH ── */}

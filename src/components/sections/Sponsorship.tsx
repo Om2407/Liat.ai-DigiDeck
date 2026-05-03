@@ -239,7 +239,7 @@ export default function Sponsorship({ currentAudience = 'all' }: { currentAudien
 
       {/* RIGHT EDGE THREE.JS */}
       <div className="w-[80px] h-full absolute right-0 top-0 border-l border-zinc-800/50 bg-zinc-950/50 z-20">
-        <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+        <Canvas frameloop="demand" gl={{ powerPreference: 'high-performance', antialias: false }} camera={{ position: [0, 0, 8], fov: 60 }}>
           <VerticalStream />
         </Canvas>
       </div>
