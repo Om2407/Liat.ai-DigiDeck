@@ -2,70 +2,12 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useDeck } from '../DeckEngine';
+import FilmGrain from '../ui/FilmGrain';
+import CountUp from '../ui/CountUp';
 
 export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
 
-// --- FILM GRAIN ---
-function FilmGrain() {
-  const [baseFreq, setBaseFreq] = useState('0.85');
-
-  useEffect(() => {
-    let frameId: number;
-    let count = 0;
-    const updateFreq = () => {
-      if (count % 3 === 0) {
-        const freq = 0.8 + Math.random() * 0.1;
-        setBaseFreq(freq.toString());
-      }
-      count++;
-      frameId = requestAnimationFrame(updateFreq);
-    };
-    frameId = requestAnimationFrame(updateFreq);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
-      <svg width="100%" height="100%">
-        <filter id="grain-events">
-          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain-events)" />
-      </svg>
-    </div>
-  );
-}
-
-// --- COUNT PILL ---
-const CountPill = ({ target, suffix = '', prefix = '' }: { target: number, suffix?: string, prefix?: string }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (!inView) return;
-    const duration = 2000;
-    const startTime = performance.now();
-
-    const update = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // easeOutExpo
-      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setCount(Math.floor(ease * target));
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
-    };
-    requestAnimationFrame(update);
-  }, [inView, target]);
-
-  return (
-    <span ref={ref}>
-      {prefix}{count.toLocaleString()}{suffix}
-    </span>
-  );
-};
 
 function StageFloor() {
   return (
@@ -212,13 +154,15 @@ const CrowdParticles = () => {
 };
 
 export default function EventsDeck({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
+  const { go } = useDeck();
+  
   const headline = currentAudience === 'event'
     ? "YOUR STAGE.\n40 MILLION WITNESSES."
     : "CONCERTS.\nCONVENTIONS.\nCULTURE.";
 
   return (
     <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex relative font-sans">
-      <FilmGrain />
+      <FilmGrain className="absolute inset-0 z-0 pointer-events-none" opacity={0.03} />
 
       {/* Global Ambient Glow */}
       <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-purple-900/20 blur-[150px] rounded-full pointer-events-none translate-x-1/4 translate-y-1/4 z-0" />
@@ -228,9 +172,9 @@ export default function EventsDeck({ currentAudience = 'all' }: { currentAudienc
         initial={{ x: '-20%', opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="w-[60%] h-full relative z-10 flex flex-col justify-center px-16 xl:px-24"
+        className="w-full lg:w-[60%] h-full relative z-10 flex flex-col justify-center px-16 xl:px-24"
       >
-        <div className="mb-12">
+        <div className="mb-12" data-ai-context="Events slide: 5,000-seat Performing Arts Center, 300K sq ft Expo Center, 200+ events per year">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -295,19 +239,19 @@ export default function EventsDeck({ currentAudience = 'all' }: { currentAudienc
         >
           <div className="flex gap-4 xl:gap-8 text-[9px] xl:text-[11px] font-black uppercase tracking-widest text-zinc-400">
             <div className="flex items-center gap-1 xl:gap-2">
-              <span className="text-white"><CountPill target={20} /></span> <span className="text-zinc-600">MIN FROM NYC</span>
+              <span className="text-white"><CountUp value={20} duration={2} /></span> <span className="text-zinc-600">MIN FROM NYC</span>
             </div>
             <div className="w-1 h-1 rounded-full bg-zinc-700 my-auto" />
             <div className="flex items-center gap-1 xl:gap-2">
-              <span className="text-white"><CountPill target={30000} /></span> <span className="text-zinc-600">PARKING</span>
+              <span className="text-white"><CountUp value={30000} duration={2} /></span> <span className="text-zinc-600">PARKING</span>
             </div>
             <div className="w-1 h-1 rounded-full bg-zinc-700 my-auto" />
             <div className="flex items-center gap-1 xl:gap-2">
-              <span className="text-white"><CountPill target={5} suffix="M" /></span> <span className="text-zinc-600">EVENT VISITORS / YR</span>
+              <span className="text-white"><CountUp value={5} suffix="M" duration={2} /></span> <span className="text-zinc-600">EVENT VISITORS / YR</span>
             </div>
           </div>
 
-          <button className="px-6 xl:px-8 py-3 xl:py-4 bg-purple-600 hover:bg-purple-500 transition-colors rounded-full text-white text-[9px] xl:text-[10px] font-black uppercase tracking-[0.2em] shrink-0 ml-4">
+          <button onClick={() => go(8)} className="px-6 xl:px-8 py-3 xl:py-4 bg-purple-600 hover:bg-purple-500 transition-colors rounded-full text-white text-[9px] xl:text-[10px] font-black uppercase tracking-[0.2em] shrink-0 ml-4">
             Book Your Event →
           </button>
         </motion.div>
@@ -318,7 +262,7 @@ export default function EventsDeck({ currentAudience = 'all' }: { currentAudienc
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 2, delay: 0.5 }}
-        className="w-[40%] h-full relative z-0"
+        className="hidden lg:block lg:w-[40%] h-full relative z-0"
       >
         <Canvas camera={{ position: [0, 2, 22], fov: 60 }} shadows>
           <ambientLight intensity={0.2} />

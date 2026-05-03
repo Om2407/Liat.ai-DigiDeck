@@ -1,175 +1,229 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useAudience } from '../../context/AudienceContext';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import CountUp from '../ui/CountUp';
+import FilmGrain from '../ui/FilmGrain';
 
-const CATEGORIES = [
-  { id: 'luxury',   label: 'Luxury Flagship', multiplier: 4.8, color: '#b45309' },
-  { id: 'fashion',  label: 'Fashion / Apparel', multiplier: 3.2, color: '#7c3aed' },
-  { id: 'tech',     label: 'Tech / Electronics', multiplier: 4.2, color: '#1428a0' },
-  { id: 'fb',       label: 'Food & Beverage', multiplier: 2.8, color: '#dc2626' },
-  { id: 'beauty',   label: 'Beauty / Wellness', multiplier: 3.6, color: '#db2777' },
-  { id: 'popup',    label: 'Pop-Up / Concept', multiplier: 2.2, color: '#059669' },
+export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
+
+const ZONES = [
+  { id: 'avenue', label: 'The Avenue (Luxury)', multiplier: 2.0 },
+  { id: 'entertainment', label: 'Entertainment District', multiplier: 1.8 },
+  { id: 'fb', label: 'F&B District', multiplier: 1.5 },
+  { id: 'tech', label: 'Tech Corridor', multiplier: 1.2 },
 ];
 
-function animateNumber(target: number, setter: (n: number) => void) {
-  let start = 0;
-  const step = target / 40;
-  const timer = setInterval(() => {
-    start += step;
-    if (start >= target) { setter(target); clearInterval(timer); }
-    else setter(Math.floor(start));
-  }, 18);
-  return () => clearInterval(timer);
-}
+const BRAND_TIERS = ['Emerging', 'Established', 'Premium', 'Luxury'];
 
-export default function ROICalculator() {
-  const { audience } = useAudience();
-  const [sqft, setSqft] = useState(2000);
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [dwell, setDwell] = useState(3);
 
-  // Calculated values
-  const annualFootfall = Math.round(40_000_000 * (sqft / 3_000_000) * (dwell / 4));
-  const revenuePerVisit = category.multiplier * 18;
-  const annualRevenue = Math.round(annualFootfall * revenuePerVisit);
-  const payback = Math.round((sqft * 280) / (annualRevenue / 12));
 
-  const [dispFootfall, setDispFootfall] = useState(0);
-  const [dispRevenue, setDispRevenue] = useState(0);
-  const [dispPayback, setDispPayback] = useState(0);
+export default function ROICalculator({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
+  // Left Column States
+  const [spaceSize, setSpaceSize] = useState(2500);
+  const [zone, setZone] = useState(0); // index of ZONES
+  const [monthlyRent, setMonthlyRent] = useState(50000);
+  const [brandTier, setBrandTier] = useState(1); // 0=Emerging, 1=Established, 2=Premium, 3=Luxury
 
+  // Derived Values
+  const activeZone = ZONES[zone];
+  const conversionRate = BRAND_TIERS[brandTier] === 'Luxury' ? 0.08 : 0.12;
+  const setupCostPerSqFt = 250;
+
+  const visitors = spaceSize * 12 + activeZone.multiplier * 50000;
+  const revenue = visitors * 180 * conversionRate;
+  const roi = monthlyRent > 0 ? ((revenue - monthlyRent) / monthlyRent) * 100 : 0;
+  const profit = revenue - monthlyRent;
+  const paybackPeriod = profit > 0 ? (spaceSize * setupCostPerSqFt) / profit : 999;
+
+  // Chart Data (12 months with slight random variation + growth)
+  const [chartData, setChartData] = useState<number[]>([]);
   useEffect(() => {
-    const c1 = animateNumber(annualFootfall, setDispFootfall);
-    const c2 = animateNumber(annualRevenue, setDispRevenue);
-    const c3 = animateNumber(payback, setDispPayback);
-    return () => { c1(); c2(); c3(); };
-  }, [annualFootfall, annualRevenue, payback]);
+    const newData = Array.from({ length: 12 }).map((_, i) => {
+      const growth = 1 + (i * 0.02); // 2% month over month growth
+      const seasonal = 1 + (Math.sin(i / 1.5) * 0.1); // seasonal variation
+      return revenue * growth * seasonal;
+    });
+    setChartData(newData);
+  }, [revenue]);
 
-  const fmt = (n: number) => n >= 1_000_000
-    ? `$${(n / 1_000_000).toFixed(1)}M`
-    : `$${(n / 1_000).toFixed(0)}K`;
-
-  const fmtNum = (n: number) => n >= 1_000_000
-    ? `${(n / 1_000_000).toFixed(1)}M`
-    : `${(n / 1_000).toFixed(0)}K`;
+  const maxChartValue = Math.max(...chartData, 1);
 
   return (
-    <section className="min-h-screen bg-zinc-950 py-16 px-6 flex flex-col justify-center">
-      <div className="max-w-6xl mx-auto w-full">
+    <div className="relative w-full h-full min-h-screen bg-zinc-950 text-white overflow-hidden flex items-center justify-center p-8 lg:p-16 pt-24">
+      
+      {/* Film Grain */}
+      <FilmGrain className="absolute inset-0 pointer-events-none z-0" opacity={0.025} />
 
-        {/* Header */}
-        <motion.div className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-          <span className="text-blue-400 uppercase tracking-[0.4em] text-[10px] font-black block mb-3">
-            Interactive Tool
-          </span>
-          <h2 className="text-white text-4xl md:text-6xl font-black tracking-tighter mb-4">
-            ROI <span style={{ background: 'linear-gradient(135deg,#60a5fa,#3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Calculator</span>
+      <div className="max-w-[1400px] w-full grid grid-cols-1 lg:grid-cols-[45%_55%] gap-12 lg:gap-20 relative z-10">
+        
+        {/* LEFT COLUMN - CONTROLS */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col justify-center"
+        >
+          <p className="text-emerald-500 font-black tracking-[0.3em] uppercase text-xs mb-4">ROI Calculator</p>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-[0.9] mb-12">
+            See Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">Return.</span>
           </h2>
-          <p className="text-white/40 text-base max-w-lg mx-auto">
-            See your projected returns at American Dream. Adjust the inputs — watch your opportunity come to life.
-          </p>
+
+          <div className="space-y-8 flex-1" data-ai-context={`ROI Calculator: Space=${spaceSize}sqft, Zone=${activeZone.label}, Budget=$${monthlyRent}/mo, projected ROI=${Math.round(roi)}%`}>
+            
+            {/* Space Size Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-xs font-bold tracking-widest uppercase text-zinc-400">Space Size</label>
+                <span className="text-emerald-400 font-black">{spaceSize.toLocaleString()} sq ft</span>
+              </div>
+              <input 
+                type="range" min="500" max="10000" step="100" value={spaceSize}
+                onChange={(e) => setSpaceSize(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 focus:outline-none"
+              />
+            </div>
+
+            {/* Zone Dropdown */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-xs font-bold tracking-widest uppercase text-zinc-400">Zone</label>
+                <span className="text-emerald-400 font-black">{activeZone.label}</span>
+              </div>
+              <div className="relative">
+                <select 
+                  value={zone} 
+                  onChange={(e) => setZone(Number(e.target.value))}
+                  className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-xl px-4 py-3 appearance-none font-bold text-sm outline-none focus:border-emerald-500 transition-colors cursor-pointer"
+                >
+                  {ZONES.map((z, i) => <option key={z.id} value={i}>{z.label}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-500 font-black text-xs">▼</div>
+              </div>
+            </div>
+
+            {/* Monthly Rent Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-xs font-bold tracking-widest uppercase text-zinc-400">Monthly Rent Budget</label>
+                <span className="text-emerald-400 font-black">${monthlyRent.toLocaleString()}</span>
+              </div>
+              <input 
+                type="range" min="10000" max="200000" step="5000" value={monthlyRent}
+                onChange={(e) => setMonthlyRent(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 focus:outline-none"
+              />
+            </div>
+
+            {/* Brand Tier Slider */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-xs font-bold tracking-widest uppercase text-zinc-400">Brand Tier</label>
+                <span className="text-emerald-400 font-black">{BRAND_TIERS[brandTier]}</span>
+              </div>
+              <input 
+                type="range" min="0" max="3" step="1" value={brandTier}
+                onChange={(e) => setBrandTier(Number(e.target.value))}
+                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 focus:outline-none"
+              />
+              <div className="flex justify-between text-[10px] text-zinc-600 font-bold uppercase tracking-wider mt-1">
+                <span>Emerging</span>
+                <span>Luxury</span>
+              </div>
+            </div>
+
+          </div>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
+        {/* RIGHT COLUMN - RESULTS */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="flex flex-col"
+        >
+          <div className="grid grid-cols-2 gap-4 lg:gap-6 mb-8">
+            
+            {/* Card 1 */}
+            <motion.div whileHover={{ scale: 1.02 }} className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 mb-2 relative z-10">Projected Monthly Visitors</p>
+              <p className="text-3xl lg:text-4xl font-black text-emerald-400 tracking-tighter relative z-10">
+                <CountUp value={visitors} />
+              </p>
+            </motion.div>
 
-          {/* LEFT — Controls */}
-          <motion.div className="space-y-6"
-            initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
+            {/* Card 2 */}
+            <motion.div whileHover={{ scale: 1.02 }} className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 mb-2 relative z-10">Est. Monthly Revenue</p>
+              <p className="text-3xl lg:text-4xl font-black text-emerald-400 tracking-tighter relative z-10">
+                <CountUp value={revenue} isCurrency />
+              </p>
+            </motion.div>
 
-            {/* Store size */}
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <div className="flex justify-between mb-3">
-                <span className="text-white font-black text-sm uppercase tracking-wider">Store Size</span>
-                <span className="text-blue-400 font-black text-sm">{sqft.toLocaleString()} sq ft</span>
-              </div>
-              <input type="range" min={500} max={20000} step={500} value={sqft}
-                aria-label={`Store size: ${sqft.toLocaleString()} square feet`}
-                onChange={e => setSqft(Number(e.target.value))}
-                className="w-full accent-blue-500 h-2 cursor-pointer" />
-              <div className="flex justify-between text-white/20 text-[10px] mt-1 font-bold uppercase tracking-wider">
-                <span>500 sq ft</span><span>20,000 sq ft</span>
-              </div>
+            {/* Card 3 */}
+            <motion.div whileHover={{ scale: 1.02 }} className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 mb-2 relative z-10">Projected ROI</p>
+              <p className={`text-3xl lg:text-4xl font-black tracking-tighter relative z-10 ${roi >= 0 ? 'text-emerald-400' : 'text-red-500'}`}>
+                {roi > 0 && '+'}<CountUp value={roi} isPercent />
+              </p>
+            </motion.div>
+
+            {/* Card 4 */}
+            <motion.div whileHover={{ scale: 1.02 }} className="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-6 backdrop-blur-xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-500 mb-2 relative z-10">Payback Period</p>
+              <p className="text-3xl lg:text-4xl font-black text-white tracking-tighter relative z-10">
+                {paybackPeriod > 120 ? '>10 yrs' : <><CountUp value={paybackPeriod} isDecimals /> <span className="text-lg text-zinc-500 uppercase tracking-widest">mos</span></>}
+              </p>
+            </motion.div>
+
+          </div>
+
+          {/* Chart Area */}
+          <div className="flex-1 bg-zinc-900/30 border border-zinc-800/50 rounded-3xl p-6 lg:p-8 flex flex-col justify-end min-h-[220px] relative overflow-hidden">
+            <div className="absolute top-6 left-6 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Year 1 Projection</span>
             </div>
-
-            {/* Category */}
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <p className="text-white font-black text-sm uppercase tracking-wider mb-4">Category</p>
-              <div className="grid grid-cols-2 gap-2">
-                {CATEGORIES.map(cat => (
-                  <button key={cat.id} onClick={() => setCategory(cat)}
-                    className="px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 text-left"
-                    style={{
-                      background: category.id === cat.id ? `${cat.color}33` : 'rgba(255,255,255,0.04)',
-                      border: `1px solid ${category.id === cat.id ? cat.color : 'rgba(255,255,255,0.08)'}`,
-                      color: category.id === cat.id ? cat.color : 'rgba(255,255,255,0.4)',
-                    }}>
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Dwell time */}
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <div className="flex justify-between mb-3">
-                <span className="text-white font-black text-sm uppercase tracking-wider">Avg Dwell Time</span>
-                <span className="font-black text-sm" style={{ color: category.color }}>{dwell} hrs/visit</span>
-              </div>
-              <input type="range" min={1} max={6} step={0.5} value={dwell}
-                aria-label={`Average dwell time: ${dwell} hours per visit`}
-                onChange={e => setDwell(Number(e.target.value))}
-                className="w-full h-2 cursor-pointer"
-                style={{ accentColor: category.color }} />
-              <div className="flex justify-between text-white/20 text-[10px] mt-1 font-bold uppercase tracking-wider">
-                <span>1 hr</span><span>6 hrs</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* RIGHT — Results */}
-          <motion.div className="space-y-5"
-            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.3 }}>
-
-            {[
-              { label: 'Projected Annual Footfall', value: fmtNum(dispFootfall), sub: 'Unique visitors to your store', icon: '👥', color: '#60a5fa' },
-              { label: 'Est. Annual Revenue', value: fmt(dispRevenue), sub: `Based on ${category.label} avg transaction`, icon: '💰', color: category.color },
-              { label: 'Payback Period', value: `${dispPayback} mo`, sub: 'Based on standard fit-out cost', icon: '📅', color: '#34d399' },
-            ].map((stat, i) => (
-              <motion.div key={stat.label}
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="p-6 rounded-2xl border"
-                style={{ background: `${stat.color}0d`, borderColor: `${stat.color}33` }}>
-                <div className="flex items-start gap-4">
-                  <span className="text-3xl">{stat.icon}</span>
-                  <div className="flex-1">
-                    <p className="text-white/40 text-[10px] uppercase tracking-widest font-black mb-1">{stat.label}</p>
-                    <motion.p className="font-black text-4xl tracking-tighter mb-1"
-                      style={{ color: stat.color }}
-                      key={stat.value}>
-                      {stat.value}
-                    </motion.p>
-                    <p className="text-white/30 text-xs">{stat.sub}</p>
+            
+            <div className="flex items-end justify-between gap-1 h-32 mt-8 w-full relative z-10">
+              {chartData.map((val, i) => {
+                const heightPercent = maxChartValue > 0 ? (val / maxChartValue) * 100 : 0;
+                return (
+                  <div key={i} className="flex flex-col items-center flex-1 gap-2 group">
+                    <motion.div 
+                      className="w-full rounded-t-sm bg-gradient-to-t from-emerald-900/40 to-emerald-500 transition-all duration-300 relative"
+                      initial={{ height: 0 }}
+                      animate={{ height: `${heightPercent}%` }}
+                      transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+                    >
+                      {/* Tooltip on hover */}
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-zinc-800 text-white text-[9px] font-bold px-2 py-1 rounded pointer-events-none transition-opacity whitespace-nowrap z-20">
+                        ${Math.round(val).toLocaleString()}
+                      </div>
+                    </motion.div>
+                    <span className="text-[9px] font-bold uppercase text-zinc-600 tracking-wider">
+                      {['J','F','M','A','M','J','J','A','S','O','N','D'][i]}
+                    </span>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                );
+              })}
+            </div>
+          </div>
 
-            {/* CTA */}
-            <motion.button
-              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-              className="w-full py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] text-white shadow-xl transition-all"
-              style={{ background: `linear-gradient(135deg, ${category.color}, ${category.color}bb)`, boxShadow: `0 20px 40px ${category.color}33` }}>
-              📩 Get Custom Leasing Proposal
-            </motion.button>
+          {/* Bottom CTA */}
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="mt-6 w-full py-5 rounded-2xl bg-emerald-500 text-zinc-950 font-black uppercase tracking-[0.2em] text-xs hover:bg-emerald-400 transition-colors shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_rgba(16,185,129,0.5)]"
+          >
+            Ready to Calculate Your Custom Package? →
+          </motion.button>
 
-            <p className="text-white/15 text-[9px] text-center uppercase tracking-wider">
-              Projections based on American Dream visitor data · 2024 averages
-            </p>
-          </motion.div>
-        </div>
+        </motion.div>
+
       </div>
-    </section>
+    </div>
   );
 }

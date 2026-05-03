@@ -134,7 +134,7 @@ export default function InnovativeThreeScene() {
           <PresentationControls
             global
             config={{ mass: 2, tension: 500 }}
-            snap={{ mass: 4, tension: 1500 }}
+            snap
             rotation={[0, 0.2, 0]}
             polar={[-Math.PI / 4, Math.PI / 4]}
             azimuth={[-Math.PI / 2, Math.PI / 2]}

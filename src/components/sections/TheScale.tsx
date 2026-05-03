@@ -49,6 +49,17 @@ const AUDIENCE_CONTENT: Record<AudienceType, { headline: string, cta: string, hi
 // ── PARTICLE CANVAS ────────────────────────────────────────
 function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isVisible = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisible.current = entry.isIntersecting; },
+      { threshold: 0.1 }
+    );
+    if (canvasRef.current) observer.observe(canvasRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
@@ -62,6 +73,10 @@ function ParticleField() {
       color: ['#0891b2', '#a855f7', '#f59e0b', '#22c55e'][Math.floor(Math.random() * 4)],
     }));
     const draw = () => {
+      if (!isVisible.current) {
+        animId = requestAnimationFrame(draw);
+        return;
+      }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => {
         p.x += p.vx; p.y += p.vy;

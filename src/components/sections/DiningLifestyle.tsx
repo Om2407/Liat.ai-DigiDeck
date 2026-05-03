@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
+import { useDeck } from '../DeckEngine';
+import FilmGrain from '../ui/FilmGrain';
+import CountUp from '../ui/CountUp';
 
 // --- DATA ---
 const FOOD_IMAGES = [
@@ -15,76 +18,25 @@ const FOOD_IMAGES = [
 
 const doubled = [...FOOD_IMAGES, ...FOOD_IMAGES];
 
-// --- FILM GRAIN ---
-function FilmGrain() {
-  const [baseFreq, setBaseFreq] = useState('0.85');
-  useEffect(() => {
-    let frameId: number;
-    let count = 0;
-    const updateFreq = () => {
-      if (count % 3 === 0) setBaseFreq((0.8 + Math.random() * 0.1).toString());
-      count++;
-      frameId = requestAnimationFrame(updateFreq);
-    };
-    frameId = requestAnimationFrame(updateFreq);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
-  return (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
-      <svg width="100%" height="100%">
-        <filter id="grain-dining">
-          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain-dining)" />
-      </svg>
-    </div>
-  );
-}
 
 // --- STAT BOX ---
 function StatBox({ target, prefix = "", suffix = "", label, delay = 0 }: { target: number, prefix?: string, suffix?: string, label: string, delay?: number }) {
-  const [val, setVal] = useState(0);
-
-  useEffect(() => {
-    let startTime: number | null = null;
-    const duration = 1500;
-    let frameId: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      // easeOutExpo
-      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setVal(Math.floor(ease * target));
-      
-      if (progress < 1) {
-        frameId = requestAnimationFrame(animate);
-      }
-    };
-
-    const timeout = setTimeout(() => {
-      frameId = requestAnimationFrame(animate);
-    }, delay);
-
-    return () => {
-      clearTimeout(timeout);
-      if (frameId) cancelAnimationFrame(frameId);
-    };
-  }, [target, delay]);
-
   return (
     <div className="bg-zinc-900 border-l-2 border-[#dc2626] p-4 rounded-r-xl flex-1 flex flex-col justify-center">
-      <p className="text-white font-black text-2xl xl:text-3xl mb-1">{prefix}{val}{suffix}</p>
+      <p className="text-white font-black text-2xl xl:text-3xl mb-1">
+        <CountUp value={target} prefix={prefix} suffix={suffix} delay={delay / 1000} />
+      </p>
       <p className="text-zinc-400 text-[10px] uppercase tracking-widest font-bold">{label}</p>
     </div>
   );
 }
 
 export default function DiningLifestyle() {
+  const { go } = useDeck();
   const headlineWords = ['STAY', 'LONGER.', 'SPEND', 'MORE.'];
 
   return (
-    <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex relative font-sans">
+    <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex relative font-sans pt-16">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
         @keyframes scrollUp {
@@ -99,7 +51,7 @@ export default function DiningLifestyle() {
         }
       `}</style>
       
-      <FilmGrain />
+      <FilmGrain className="absolute inset-0 z-0 pointer-events-none" opacity={0.03} />
 
       {/* AMBIENT GLOW */}
       <div className="absolute top-1/2 left-0 w-[800px] h-[800px] bg-[#dc2626]/10 blur-[150px] rounded-full -translate-y-1/2 -translate-x-1/4 pointer-events-none z-0" />
@@ -109,7 +61,8 @@ export default function DiningLifestyle() {
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="w-1/2 h-full flex flex-col justify-center px-16 xl:px-24 z-10"
+        className="w-full lg:w-1/2 h-full flex flex-col justify-center pt-16 px-16 xl:px-24 z-10"
+        data-ai-context="Dining slide: 100+ restaurants, $180 avg spend, 90 min added visit time"
       >
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#dc2626] mb-6">
           Dining & Lifestyle
@@ -150,6 +103,7 @@ export default function DiningLifestyle() {
         </motion.div>
 
         <motion.button 
+          onClick={() => go(8)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.8 }}
@@ -160,7 +114,7 @@ export default function DiningLifestyle() {
       </motion.div>
 
       {/* RIGHT COLUMN */}
-      <div className="w-1/2 h-full relative z-10 overflow-hidden bg-zinc-950/50">
+      <div className="hidden lg:block lg:w-1/2 h-full relative z-10 overflow-hidden bg-zinc-950/50">
         {/* Top Fade */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-zinc-950 via-zinc-950/80 to-transparent z-20 pointer-events-none" />
         

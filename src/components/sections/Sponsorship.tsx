@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import FilmGrain from '../ui/FilmGrain';
 
 export type AudienceType = 'all' | 'tenant' | 'sponsor' | 'event';
 
@@ -23,30 +24,6 @@ const TIERS = [
   },
 ];
 
-function FilmGrain() {
-  const [baseFreq, setBaseFreq] = useState('0.85');
-  useEffect(() => {
-    let frameId: number;
-    let count = 0;
-    const updateFreq = () => {
-      if (count % 3 === 0) setBaseFreq((0.8 + Math.random() * 0.1).toString());
-      count++;
-      frameId = requestAnimationFrame(updateFreq);
-    };
-    frameId = requestAnimationFrame(updateFreq);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
-  return (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]">
-      <svg width="100%" height="100%">
-        <filter id="grain-sponsor-3">
-          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain-sponsor-3)" />
-      </svg>
-    </div>
-  );
-}
 
 function VerticalStream() {
   const count = 500;
@@ -104,7 +81,7 @@ export default function Sponsorship({ currentAudience = 'all' }: { currentAudien
 
   return (
     <div className="w-full h-screen bg-zinc-950 text-white overflow-hidden flex relative font-sans">
-      <FilmGrain />
+      <FilmGrain className="absolute inset-0 z-0 pointer-events-none" opacity={0.03} />
 
       <style>{`
         @keyframes shimmer {
@@ -156,7 +133,7 @@ export default function Sponsorship({ currentAudience = 'all' }: { currentAudien
         </motion.div>
 
         {/* MIDDLE — tier cards */}
-        <div className="flex-1 flex items-stretch gap-5 py-4 min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row items-stretch gap-5 py-4 min-h-0">
           {TIERS.map((tier, i) => {
             const isPresenting = i === 0;
             const isActivation = i === 1;
@@ -164,6 +141,7 @@ export default function Sponsorship({ currentAudience = 'all' }: { currentAudien
             return (
               <motion.div
                 key={tier.name}
+                data-ai-context={isPresenting ? "Sponsorship slide: Viewing $2M+ Presenting Partner tier — naming rights, 300K daily LED views" : isActivation ? "Sponsorship slide: Viewing $500K-$2M Activation Partner tier — most popular tier" : "Sponsorship slide: Viewing $100K-$500K Event Sponsor tier — entry level partnership"}
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.12 + 0.2, duration: 0.7 }}

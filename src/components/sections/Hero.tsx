@@ -3,6 +3,8 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useMotionTemplate }
 import { useDeck, SLIDES } from '../DeckEngine';
 import { useAudience, AUDIENCE_CONFIG, type Audience } from '../../context/AudienceContext';
 import { LayoutGrid, X } from 'lucide-react';
+import MagneticButton from '../ui/MagneticButton';
+import CountUp from '../ui/CountUp';
 
 const BRANDS = [
   'HERMÈS', 'GUCCI', 'LOUIS VUITTON', 'CARTIER', 'PRADA', 'SAINT LAURENT',
@@ -159,7 +161,7 @@ function FilmGrain() {
 
 function FloatingOrbs() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
       <motion.div
         animate={{ x: [0, 120, -60, 0], y: [0, -80, 120, 0] }}
         transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
@@ -230,103 +232,6 @@ function CursorSpotlight() {
   );
 }
 
-function MagneticButton({
-  children,
-  onClick,
-  className,
-  style
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-  style?: React.CSSProperties
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const springConfig = { stiffness: 150, damping: 15, mass: 0.1 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
-
-    // Move max ~12px
-    const maxMove = 12;
-    const moveX = (distanceX / (rect.width / 2)) * maxMove;
-    const moveY = (distanceY / (rect.height / 2)) * maxMove;
-
-    x.set(moveX);
-    y.set(moveY);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.button
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      className={className}
-      style={{ ...style, x: springX, y: springY }}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-function CountUpStat({ finalString, delay }: { finalString: string, delay: number }) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const match = finalString.match(/^([^0-9]*)(\d+)(.*?)$/);
-
-  useEffect(() => {
-    if (!match) return;
-    const target = parseInt(match[2], 10);
-    const duration = 2000;
-    const startTime = performance.now();
-    let animationFrameId: number;
-
-    const update = (currentTime: number) => {
-      const elapsed = currentTime - startTime - (delay * 1000);
-      if (elapsed < 0) {
-        animationFrameId = requestAnimationFrame(update);
-        return;
-      }
-
-      const progress = Math.min(elapsed / duration, 1);
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      setDisplayValue(Math.floor(easeOutQuart * target));
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(update);
-      } else {
-        setDisplayValue(target);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [finalString, delay, match]);
-
-  if (!match) return <span>{finalString}</span>;
-
-  return (
-    <span>
-      {match[1]}{displayValue}{match[3]}
-    </span>
-  );
-}
 
 // --- MAIN HERO COMPONENT ---
 
@@ -429,8 +334,21 @@ export default function Hero() {
         )}
       </AnimatePresence>
 
+      {/* CINEMATIC VIDEO BG */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
+        style={{ filter: 'brightness(0.4) saturate(1.2)' }}
+      >
+        <source src="/videos/hero-main.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-zinc-950/60 via-zinc-950/30 to-zinc-950/80 pointer-events-none" />
+
       {/* KEN BURNS BACKGROUND */}
-      <div className="absolute inset-0 z-[1] overflow-hidden">
+      <div className="absolute inset-0 z-[2] overflow-hidden">
         <AnimatePresence mode="sync">
           <motion.div
             key={activeBg}
@@ -479,7 +397,7 @@ export default function Hero() {
         <div className="absolute left-12 lg:left-16 top-1/2 -translate-y-1/2 z-[20] w-full max-w-7xl flex justify-between items-center pr-12 lg:pr-16 pt-20">
 
           {/* LEFT TEXT */}
-          <div className="flex-1 text-left">
+          <div className="flex-1 text-left" data-ai-context="Hero slide: American Dream Mall overview — 40M visitors, 3M sq ft, 8 miles from NYC">
             <h1 className="text-white font-black leading-[0.85] tracking-tighter mb-6 flex flex-col">
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
@@ -610,7 +528,10 @@ export default function Hero() {
                     color: cfg.color === '#3b82f6' ? 'white' : cfg.color,
                     textShadow: `0 0 30px ${cfg.color}60`,
                   }}>
-                  <CountUpStat finalString={s.num} delay={1.2 + (i * 0.1)} />
+                  {(() => {
+                    const match = s.num.match(/^([^0-9]*)(\d+)(.*?)$/);
+                    return match ? <CountUp value={parseInt(match[2], 10)} prefix={match[1]} suffix={match[3]} delay={1.2 + (i * 0.1)} duration={2} /> : <>{s.num}</>;
+                  })()}
                 </p>
                 <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold mt-1">{s.label}</p>
                 {/* Glowing underline */}

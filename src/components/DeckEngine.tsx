@@ -500,6 +500,9 @@ import { useState, useEffect, useCallback, createContext, useContext, useRef } f
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, LayoutGrid, X, Play, Pause } from 'lucide-react';
 import { useAudience, AUDIENCE_CONFIG, type Audience } from '../context/AudienceContext';
+import html2canvas from 'html2canvas';
+import * as THREE from 'three';
+import WebGLTransition from './WebGLTransition';
 
 /* ─── Deck Context ─── */
 interface DeckCtx { current: number; total: number; go: (n: number) => void; next: () => void; prev: () => void; }
@@ -516,6 +519,7 @@ export const SLIDES: SlideInfo[] = [
   { id: 'entertain', label: 'Entertainment', emoji: '🎡', color: '#ea580c', bg: 'dark', audience: 'all' },
   { id: 'events', label: 'Events', emoji: '🎤', color: '#7c3aed', bg: 'dark', audience: 'event' },
   { id: 'sponsorship', label: 'Sponsorship', emoji: '🎯', color: '#f59e0b', bg: 'dark', audience: 'sponsor' },
+  { id: 'roi', label: 'ROI Calc', emoji: '💰', color: '#10b981', bg: 'dark', audience: 'tenant' },
   { id: 'dining', label: 'Lifestyle', emoji: '🍽️', color: '#dc2626', bg: 'dark', audience: 'all' },
   { id: 'contact', label: 'Partner', emoji: '🤝', color: '#1d4ed8', bg: 'dark', audience: 'all' },
 ];
@@ -530,6 +534,7 @@ const getSlideContext = (slideId: string, audience: string): string => {
     entertain: "Three world-record attractions: Nickelodeon Universe, DreamWorks Water Park, Big Snow indoor ski. Pitch in 2 sentences.",
     events: "5,000-seat Performing Arts Center and 300,000 sq ft Exposition Center. Give a 2-sentence event producer pitch.",
     sponsorship: "Brand sponsorship tiers at American Dream: Presenting Partner ($2M+), Activation Partner ($500K-$2M), Event Sponsor ($100K-$500K). 40M visitors, $95K avg HHI. Give a 2-sentence pitch to brand sponsors.",
+    roi: "ROI calculator showing projected footfall, revenue, and payback period for retail tenants. Give 2 sentences why the numbers make sense.",
     dining: "100+ restaurants from Michelin-caliber to quick bites. Give a 2-sentence pitch about dining as a destination driver.",
     contact: "Final CTA slide for leasing, sponsorship, and event bookings. Give a compelling 2-sentence closing pitch.",
   };
@@ -786,14 +791,72 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
   const { audience } = useAudience();
   const [current, setCurrent] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [direction, setDirection] = useState(1);
+  
+  // WebGL Transition State
+  const [nextIndex, setNextIndex] = useState<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [textures, setTextures] = useState<{t1: THREE.Texture, t2: THREE.Texture} | null>(null);
+  
+  const currentRef = useRef<HTMLDivElement>(null);
+  const nextRef = useRef<HTMLDivElement>(null);
   const total = slides.length;
 
+  const capture = async (el: HTMLElement) => {
+    const canvas = await html2canvas(el, { backgroundColor: '#080808', useCORS: true, logging: false });
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  };
+
   const go = useCallback((n: number) => {
-    if (n < 0 || n >= total) return;
-    setDirection(n > current ? 1 : -1);
-    setCurrent(n);
-  }, [current, total]);
+    if (n < 0 || n >= total || isTransitioning || n === current) return;
+    setIsTransitioning(true);
+
+    // Bypass WebGL if we don't have refs
+    if (!currentRef.current) {
+      setCurrent(n);
+      setIsTransitioning(false);
+      return;
+    }
+
+    // Skip WebGL transition if slide contains canvas (e.g. Three.js particles)
+    const hasCanvas = currentRef.current?.querySelector('canvas');
+    if (hasCanvas) {
+      setCurrent(n);
+      setIsTransitioning(false);
+      return;
+    }
+
+    // 1. Render next slide off-screen to capture
+    setNextIndex(n);
+
+    // Wait for next slide to mount, then capture both
+    setTimeout(async () => {
+      try {
+        if (currentRef.current && nextRef.current) {
+          const [tex1, tex2] = await Promise.all([
+            capture(currentRef.current),
+            capture(nextRef.current)
+          ]);
+          setTextures({ t1: tex1, t2: tex2 });
+        } else {
+          throw new Error("Missing refs for capture");
+        }
+      } catch (err) {
+        console.error("WebGL Transition Capture Failed:", err);
+        setCurrent(n);
+        setIsTransitioning(false);
+        setNextIndex(null);
+      }
+    }, 150);
+  }, [current, total, isTransitioning]);
+
+  const handleTransitionComplete = useCallback(() => {
+    setCurrent(nextIndex as number);
+    setNextIndex(null);
+    setTextures(null);
+    setIsTransitioning(false);
+  }, [nextIndex]);
 
   const next = useCallback(() => go(current + 1), [current, go]);
   const prev = useCallback(() => go(current - 1), [current, go]);
@@ -812,26 +875,27 @@ export default function DeckEngine({ slides }: { slides: React.ReactNode[] }) {
   const theme = slideInfo.bg || 'dark';
   const t = theme === 'light' ? lightBtn : darkBtn;
 
-  const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
-  };
-
   return (
     <DeckContext.Provider value={{ current, total, go, next, prev }}>
       <div className="fixed inset-0 overflow-hidden bg-zinc-950">
         <ProgressBar current={current} total={total} color={slideInfo.color} />
 
         {/* Slides */}
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div key={current} custom={direction} variants={variants}
-            initial="enter" animate="center" exit="exit"
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 overflow-y-auto overflow-x-hidden">
-            {slides[current]}
-          </motion.div>
-        </AnimatePresence>
+        <div ref={currentRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden z-[10]">
+          {slides[current]}
+        </div>
+
+        {/* Next Slide (Off-screen for capture) */}
+        {nextIndex !== null && textures === null && (
+          <div ref={nextRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden z-[-1]" style={{ opacity: 0.99 }}>
+            {slides[nextIndex]}
+          </div>
+        )}
+
+        {/* WebGL Overlay */}
+        {textures && (
+          <WebGLTransition texture1={textures.t1} texture2={textures.t2} onComplete={handleTransitionComplete} />
+        )}
 
         {/* ── TOP BAR ── */}
         {/* Menu - top left */}

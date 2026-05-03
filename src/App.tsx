@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DeckEngine from './components/DeckEngine';
 import SlideWrapper from './components/SlideWrapper';
 import { AudienceProvider, useAudience } from './context/AudienceContext';
+import FluidCursor from './components/ui/FluidCursor';
 
 import Hero from './components/sections/Hero';
 import TheScale from './components/sections/TheScale';
@@ -10,6 +11,7 @@ import EntertainmentDeck from './components/sections/EntertainmentDeck';
 import EventsDeck from './components/sections/EventsDeck';
 import Sponsorship from './components/sections/Sponsorship';
 import DiningLifestyle from './components/sections/DiningLifestyle';
+import ROICalculator from './components/sections/ROICalculator';
 import Contact from './components/sections/Contact';
 import AIConcierge from './components/AIConcierge';
 
@@ -32,8 +34,11 @@ function AppSlides() {
     <SlideWrapper bg="bg-zinc-950" key="events" showNextHint nextLabel="Sponsorship">
       <EventsDeck currentAudience={audience} />
     </SlideWrapper>,
-    <SlideWrapper bg="bg-zinc-950" key="sponsorship" showNextHint nextLabel="Dining & Lifestyle">
+    <SlideWrapper bg="bg-zinc-950" key="sponsorship" showNextHint nextLabel="ROI Calculator">
       <Sponsorship currentAudience={audience} />
+    </SlideWrapper>,
+    <SlideWrapper bg="bg-zinc-950" key="roi" showNextHint nextLabel="Dining & Lifestyle">
+      <ROICalculator currentAudience={audience} />
     </SlideWrapper>,
     <SlideWrapper bg="bg-zinc-950" key="dining" showNextHint nextLabel="Partner With Us">
       <DiningLifestyle />
@@ -54,6 +59,7 @@ function AppSlides() {
 export default function App() {
   return (
     <AudienceProvider>
+      <FluidCursor />
       <AppSlides />
     </AudienceProvider>
   );

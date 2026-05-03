@@ -1,139 +1,71 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useMotionTemplate, animate, useScroll, useTransform } from 'motion/react';
+import FilmGrain from '../ui/FilmGrain';
+import MagneticButton from '../ui/MagneticButton';
 
-// ── FILM GRAIN ─────────────────────────────────────────────
-function FilmGrain() {
-  const [baseFreq, setBaseFreq] = useState('0.85');
 
+const useScramble = (text: string, entered: boolean, delay: number = 0) => {
+  const [display, setDisplay] = useState(text);
   useEffect(() => {
-    let frameId: number;
-    let count = 0;
-    const updateFreq = () => {
-      if (count % 3 === 0) { // animate grain every 3 frames
-        const freq = 0.8 + Math.random() * 0.1;
-        setBaseFreq(freq.toString());
-      }
-      count++;
-      frameId = requestAnimationFrame(updateFreq);
-    };
-    frameId = requestAnimationFrame(updateFreq);
-    return () => cancelAnimationFrame(frameId);
-  }, []);
-
-  return (
-    <div className="fixed inset-0 z-[5] pointer-events-none opacity-[0.035]">
-      <svg width="100%" height="100%">
-        <filter id="grain">
-          <feTurbulence type="fractalNoise" baseFrequency={baseFreq} numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#grain)" />
-      </svg>
-    </div>
-  );
-}
-
-// ── SCRAMBLE ───────────────────────────────────────────────
-const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%&";
-function useScramble(text: string, trigger: boolean, duration: number = 1000) {
-  const [displayText, setDisplayText] = useState(text);
-  useEffect(() => {
-    if (!trigger) return;
-    const start = Date.now();
-    let frameId: number;
-    const tick = () => {
-      const progress = Math.min((Date.now() - start) / duration, 1);
-      if (progress === 1) { setDisplayText(text); return; }
-      const resolvedCount = Math.floor(progress * text.length);
-      setDisplayText(text.split('').map((char, index) => {
-        if (char === ' ') return ' ';
-        if (index < resolvedCount) return char;
-        return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-      }).join(''));
-      frameId = requestAnimationFrame(tick);
-    };
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
-  }, [text, trigger, duration]);
-  return displayText;
-}
-
-// ── TILT CARD ──────────────────────────────────────────────
-const TiltCard = ({ children, className, style, onClick, onMouseEnter, onMouseLeave }: any) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 });
-  const rotateY = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    rotateX.set(((my - rect.height / 2) / rect.height) * -14);
-    rotateY.set(((mx - rect.width / 2) / rect.width) * 14);
-    x.set(mx); y.set(my);
-  };
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    rotateX.set(0); rotateY.set(0);
-    if (onMouseLeave) onMouseLeave(e);
-  };
-  const background = useMotionTemplate`radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.13) 0%, transparent 55%)`;
-  return (
-    <motion.div className={className} style={{ ...style, rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} onMouseEnter={onMouseEnter} onClick={onClick}>
-      {children}
-      <motion.div className="absolute inset-0 pointer-events-none z-50 rounded-2xl" style={{ background }} />
-    </motion.div>
-  );
+    if (!entered) return;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let iteration = 0;
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setDisplay(text.split('').map((char, i) => {
+          if (i < iteration) return text[i];
+          if (char === ' ') return ' ';
+          return chars[Math.floor(Math.random() * chars.length)];
+        }).join(''));
+        if (iteration >= text.length) clearInterval(interval);
+        iteration += 1;
+      }, 30);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [text, entered, delay]);
+  return display;
 };
 
-// ── MAGNETIC BUTTON ────────────────────────────────────────
-const MagneticButton = ({ children, className, style, onClick }: any) => {
-  const ref = useRef<HTMLButtonElement>(null);
+// ── TILT CARD ──
+function TiltCard({ children, className, style, onMouseEnter, onMouseLeave, onClick }: any) {
+  const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
-  const springY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), { stiffness: 300, damping: 30 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const moveX = ((e.clientX - centerX) / (rect.width / 2)) * 12;
-    const moveY = ((e.clientY - centerY) / (rect.height / 2)) * 12;
-    x.set(moveX); y.set(moveY);
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
   };
-  const handleMouseLeave = () => { x.set(0); y.set(0); };
+
+  const handleLeave = () => {
+    x.set(0); y.set(0);
+    onMouseLeave?.();
+  };
 
   return (
-    <motion.button ref={ref} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}
-      onClick={onClick} className={className} style={{ ...style, x: springX, y: springY }}>
+    <motion.div
+      ref={ref}
+      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', ...style }}
+      className={className}
+      onMouseMove={handleMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={handleLeave}
+      onClick={onClick}
+    >
       {children}
-    </motion.button>
+    </motion.div>
   );
-};
+}
 
-// ── COUNT PILL ─────────────────────────────────────────────
-const CountPill = ({ text }: { text: string }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const countRef = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setIsVisible(true); observer.disconnect(); }
-    });
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  const match = text.match(/^(.*?)(\d+)(.*)$/);
-  useEffect(() => {
-    if (isVisible && match && countRef.current) {
-      const target = parseInt(match[2], 10);
-      animate(0, target, { duration: 1.5, ease: "easeOut", onUpdate: (v) => { if (countRef.current) countRef.current.textContent = Math.round(v).toString(); } });
-    }
-  }, [isVisible, match]);
-  if (!match) return <span ref={ref}>{text}</span>;
-  return <span ref={ref}>{match[1]}<span ref={countRef}>0</span>{match[3]}</span>;
-};
+// ── COUNT PILL ──
+function CountPill({ text }: { text: string }) {
+  return <span>{text}</span>;
+}
 
 // ── DATA ───────────────────────────────────────────────────
 const ATTRACTIONS = [
@@ -307,11 +239,21 @@ const VenueModal = ({ modalCard, currentAudience, onClose }: any) => {
 // ── MAIN ───────────────────────────────────────────────────
 export default function EntertainmentDeck({ currentAudience = 'all' }: { currentAudience?: AudienceType }) {
   const angleRef = useRef(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number>(0);
   const pausedRef = useRef(false);
   const hoveredIdRef = useRef<string | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const wheelRef = useRef<HTMLDivElement>(null);
+  const isVisible = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisible.current = entry.isIntersecting; },
+      { threshold: 0.1 }
+    );
+    if (wheelRef.current) observer.observe(wheelRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [frontColor, setFrontColor] = useState(ATTRACTIONS[0].color);
@@ -333,6 +275,10 @@ export default function EntertainmentDeck({ currentAudience = 'all' }: { current
   useEffect(() => {
     let lastGlowUpdate = 0;
     const tick = (time: number) => {
+      if (!isVisible.current) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
       if (!pausedRef.current) angleRef.current += 0.22;
       let maxZ = -1000, currentFrontIndex = 0;
 
@@ -347,10 +293,8 @@ export default function EntertainmentDeck({ currentAudience = 'all' }: { current
         const isHov = hoveredIdRef.current === attr.id;
         const scale = isHov ? 1.48 : 0.72 + normalizedY * 0.38;
         const opacity = hoveredIdRef.current && !isHov ? 0.15 : 0.55 + normalizedY * 0.45;
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
         el.style.zIndex = isHov ? '999' : String(zIndex);
-        el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
         el.style.opacity = String(opacity);
       });
 
