@@ -223,7 +223,7 @@ npm run build     # Production build
 
 **Built by Om Gupta**
 
-📧 guptaom203@gmail.com &nbsp;·&nbsp; 📱 +91-9131939394 &nbsp;·&nbsp; 🔗 [GitHub @Om2407](https://github.com/Om2407)
+📧 guptaom203@gmail.com &nbsp;·&nbsp;  &nbsp;·&nbsp; 🔗 [GitHub @Om2407](https://github.com/Om2407)
 
 <br/>
 
